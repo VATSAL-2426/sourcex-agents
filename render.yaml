@@ -3,7 +3,7 @@ services:
     name: sourcex-audit-server
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn tools.audit_server:app
+    startCommand: gunicorn app:app
     envVars:
       - key: SENDGRID_API_KEY
         sync: false

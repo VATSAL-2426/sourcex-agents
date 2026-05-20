@@ -1,1 +1,1 @@
-web: gunicorn tools.audit_server:app
+web: gunicorn app:app
