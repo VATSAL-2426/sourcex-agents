@@ -1,0 +1,10 @@
+.env
+.tmp/
+.DS_Store
+__pycache__/
+*.pyc
+*.pdf
+.claude/
+SecurityMD/
+token.json
+credentials.json

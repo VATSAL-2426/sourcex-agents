@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proposal — Clinic Revenue Recovery System — SOURCE X</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --black: #000000;
+      --white: #FFFFFF;
+      --gray-200: #E0E0E0;
+      --gray-400: #999999;
+      --gray-600: #666666;
+      --gray-800: #1A1A1A;
+      --gray-900: #0D0D0D;
+      --border: rgba(255,255,255,0.08);
+      --border-bright: rgba(255,255,255,0.16);
+    }
+
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      .page-break { page-break-before: always; }
+      .no-print { display: none !important; }
+    }
+
+    body {
+      background: #111;
+      color: var(--white);
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── PRINT TOOLBAR ── */
+    .toolbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.95);
+      border-bottom: 1px solid var(--border-bright);
+      padding: 12px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 1000;
+      backdrop-filter: blur(12px);
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .toolbar-logo {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+    }
+
+    .toolbar-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+    }
+
+    .toolbar-btn {
+      background: var(--white);
+      color: var(--black);
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    .toolbar-btn:hover { background: #e0e0e0; }
+
+    /* ── DOCUMENT ── */
+    .document {
+      max-width: 860px;
+      margin: 80px auto 80px;
+      background: var(--black);
+    }
+
+    /* ── COVER PAGE ── */
+    .cover {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 72px 80px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cover-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: auto;
+    }
+
+    .cover-logo-block {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cover-logo-img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+    }
+
+    .cover-logo-name {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+
+    .cover-badge {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+    }
+
+    .cover-main {
+      margin: auto 0;
+      padding: 80px 0;
+    }
+
+    .cover-prepared-for {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      margin-bottom: 20px;
+    }
+
+    .cover-clinic-name {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--white);
+      margin-bottom: 52px;
+      border-left: 3px solid var(--white);
+      padding-left: 20px;
+    }
+
+    .cover-offer-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      margin-bottom: 18px;
+    }
+
+    .cover-title {
+      font-size: clamp(40px, 5.5vw, 68px);
+      font-weight: 900;
+      letter-spacing: -0.035em;
+      line-height: 0.96;
+      color: var(--white);
+      margin-bottom: 32px;
+    }
+
+    .cover-tagline {
+      font-size: 17px;
+      color: var(--gray-400);
+      max-width: 520px;
+      line-height: 1.6;
+    }
+
+    .cover-meta {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-top: 56px;
+    }
+
+    .cover-meta-cell {
+      background: var(--black);
+      padding: 20px 20px;
+    }
+
+    .cover-meta-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      margin-bottom: 8px;
+    }
+
+    .cover-meta-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .cover-bottom {
+      margin-top: auto;
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cover-footer-text {
+      font-size: 11px;
+      color: var(--gray-600);
+      line-height: 1.7;
+    }
+
+    .cover-footer-url {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--gray-400);
+      text-decoration: none;
+    }
+
+    /* ── DOCUMENT SECTION ── */
+    .doc-section {
+      padding: 72px 80px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .section-num {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      white-space: nowrap;
+      padding-top: 6px;
+      min-width: 60px;
+    }
+
+    .section-title-block {}
+
+    .section-title {
+      font-size: clamp(22px, 3vw, 34px);
+      font-weight: 900;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+
+    .section-intro {
+      font-size: 14px;
+      color: var(--gray-400);
+      line-height: 1.65;
+      max-width: 600px;
+    }
+
+    .section-intro strong {
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    /* ── LEAK SUMMARY TABLE ── */
+    .leak-summary {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 32px;
+    }
+
+    .leak-row {
+      background: var(--black);
+      display: grid;
+      grid-template-columns: 40px 1fr 120px 120px;
+      gap: 0;
+      align-items: center;
+    }
+
+    .leak-row-header {
+      background: var(--gray-900);
+    }
+
+    .leak-cell {
+      padding: 16px 20px;
+      font-size: 13px;
+    }
+
+    .leak-cell:not(:last-child) {
+      border-right: 1px solid var(--border);
+    }
+
+    .leak-row-header .leak-cell {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      padding: 12px 20px;
+    }
+
+    .leak-num-cell {
+      color: var(--gray-600);
+      font-weight: 700;
+      font-size: 11px;
+    }
+
+    .leak-name-cell {
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .leak-impact-cell {
+      font-weight: 700;
+      color: var(--white);
+      text-align: right;
+    }
+
+    .leak-status-cell {
+      font-size: 11px;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .status-gap {
+      color: var(--gray-400);
+    }
+
+    .total-leak-row {
+      background: var(--gray-900);
+      border: 1px solid var(--border-bright) !important;
+    }
+
+    .total-leak-row .leak-cell {
+      font-weight: 700;
+    }
+
+    .total-leak-row .leak-name-cell {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+    }
+
+    .total-leak-row .leak-impact-cell {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+    }
+
+    /* ── PLACEHOLDER FIELDS ── */
+    .field-placeholder {
+      display: inline-block;
+      border-bottom: 1px solid var(--border-bright);
+      min-width: 140px;
+      color: var(--gray-400);
+      font-style: italic;
+      padding: 2px 4px;
+    }
+
+    .field-block {
+      background: var(--gray-900);
+      border: 1px solid var(--border);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+
+    .field-block-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      margin-bottom: 12px;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 16px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .field-row:last-child { border-bottom: none; }
+
+    .field-key {
+      color: var(--gray-600);
+      font-weight: 500;
+    }
+
+    .field-val {
+      color: var(--white);
+      font-weight: 500;
+    }
+
+    .field-val.editable {
+      color: var(--gray-400);
+      border-bottom: 1px dashed var(--border-bright);
+      font-style: italic;
+    }
+
+    /* ── MODULES SECTION ── */
+    .module-proposal-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .module-proposal-item {
+      background: var(--black);
+      display: grid;
+      grid-template-columns: 200px 1fr 160px;
+      gap: 0;
+    }
+
+    .mpi-label {
+      padding: 32px 28px;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .mpi-num {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      margin-bottom: 8px;
+    }
+
+    .mpi-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.3;
+    }
+
+    .mpi-body {
+      padding: 32px 32px;
+      border-right: 1px solid var(--border);
+    }
+
+    .mpi-desc {
+      font-size: 13px;
+      color: var(--gray-400);
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .mpi-deliverables {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .mpi-deliverable {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 12px;
+    }
+
+    .mpi-del-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--gray-600);
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    .mpi-del-text {
+      color: var(--gray-400);
+    }
+
+    .mpi-value {
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    .mpi-val-num {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: var(--white);
+    }
+
+    .mpi-val-label {
+      font-size: 10px;
+      color: var(--gray-600);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* ── STACK TABLE ── */
+    .proposal-stack {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .proposal-stack tr {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .proposal-stack tr:first-child { border-top: 1px solid var(--border); }
+
+    .proposal-stack td {
+      padding: 15px 4px;
+      font-size: 13px;
+    }
+
+    .proposal-stack td:first-child { color: var(--gray-400); }
+
+    .proposal-stack td:last-child {
+      text-align: right;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .proposal-stack .stack-total-row td {
+      padding: 20px 16px !important;
+    }
+
+    .stack-total-row {
+      background: var(--gray-900) !important;
+      border: 1px solid var(--border-bright) !important;
+    }
+
+    .stack-total-row td:first-child {
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray-600) !important;
+    }
+
+    .stack-total-row td:last-child {
+      font-size: 24px !important;
+      font-weight: 900 !important;
+      letter-spacing: -0.02em;
+    }
+
+    /* ── PRICING TABLE ── */
+    .pricing-proposal {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .pp-cell {
+      background: var(--black);
+      padding: 32px 28px;
+    }
+
+    .pp-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      margin-bottom: 14px;
+    }
+
+    .pp-amount {
+      font-size: 44px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .pp-desc {
+      font-size: 13px;
+      color: var(--gray-400);
+      line-height: 1.55;
+    }
+
+    .pp-math {
+      background: var(--gray-900);
+      border: 1px solid var(--border);
+      padding: 18px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .pp-math-lbl { font-size: 12px; color: var(--gray-600); }
+    .pp-math-val { font-size: 14px; font-weight: 700; color: var(--white); }
+
+    /* ── GUARANTEE BLOCK ── */
+    .guarantee-proposal {
+      border: 1px solid var(--border-bright);
+      padding: 36px 36px;
+    }
+
+    .gp-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .gp-icon {
+      font-size: 28px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .gp-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--white);
+    }
+
+    .gp-body {
+      font-size: 14px;
+      color: var(--gray-400);
+      line-height: 1.7;
+    }
+
+    .gp-body strong { color: var(--white); font-weight: 600; }
+
+    .gp-terms {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .gp-term-item {
+      font-size: 13px;
+    }
+
+    .gp-term-title {
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+
+    .gp-term-desc {
+      color: var(--gray-400);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    /* ── TIMELINE ── */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .timeline-row {
+      background: var(--black);
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 0;
+    }
+
+    .tl-phase {
+      padding: 24px 20px;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .tl-phase-days {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      margin-bottom: 4px;
+    }
+
+    .tl-phase-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .tl-body {
+      padding: 24px 24px;
+    }
+
+    .tl-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 6px;
+    }
+
+    .tl-desc {
+      font-size: 13px;
+      color: var(--gray-400);
+      line-height: 1.55;
+    }
+
+    /* ── NEXT STEPS ── */
+    .next-steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 40px;
+    }
+
+    .ns-item {
+      background: var(--black);
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      gap: 20px;
+      align-items: center;
+      padding: 20px 24px;
+    }
+
+    .ns-step-num {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+    }
+
+    .ns-action {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .ns-owner {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      white-space: nowrap;
+    }
+
+    /* ── SIGNATURE ── */
+    .signature-block {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+
+    .sig-panel {
+      border: 1px solid var(--border);
+      padding: 32px 28px;
+    }
+
+    .sig-panel-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      margin-bottom: 24px;
+    }
+
+    .sig-field-row {
+      margin-bottom: 20px;
+    }
+
+    .sig-field-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      margin-bottom: 8px;
+    }
+
+    .sig-field-line {
+      border-bottom: 1px solid var(--border-bright);
+      height: 36px;
+      width: 100%;
+    }
+
+    .sig-prefilled {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--white);
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── SECTION DIVIDER ── */
+    .page-break-hint {
+      height: 1px;
+      background: var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOOLBAR (no-print) -->
+<div class="toolbar no-print">
+  <div class="toolbar-left">
+    <img src="sourcex-logo.png" alt="SOURCE X" class="toolbar-logo">
+    <span class="toolbar-title">Source X · Proposal Template</span>
+  </div>
+  <button class="toolbar-btn" onclick="window.print()">Print / Export PDF</button>
+</div>
+
+<div class="document">
+
+  <!-- ════════════════════════════════════
+       COVER PAGE
+  ════════════════════════════════════ -->
+  <div class="cover">
+    <div class="cover-top">
+      <div class="cover-logo-block">
+        <img src="sourcex-logo.png" alt="SOURCE X" class="cover-logo-img">
+        <span class="cover-logo-name">Source X</span>
+      </div>
+      <span class="cover-badge">Proposal · Confidential</span>
+    </div>
+
+    <div class="cover-main">
+      <div class="cover-prepared-for">Prepared exclusively for</div>
+      <div class="cover-clinic-name">[Clinic Name] — [Number] Locations</div>
+
+      <div class="cover-offer-label">Proposal</div>
+      <h1 class="cover-title">The Clinic Revenue<br>Recovery System</h1>
+      <p class="cover-tagline">A fully managed AI operating system that recovers missed-call revenue, reduces no-shows by 30%+, and reactivates dormant patients — deployed in 21 days, PHIPA-compliant, with a 60-day money-back ROI guarantee.</p>
+
+      <div class="cover-meta">
+        <div class="cover-meta-cell">
+          <div class="cover-meta-label">Prepared By</div>
+          <div class="cover-meta-value">SOURCE X</div>
+        </div>
+        <div class="cover-meta-cell">
+          <div class="cover-meta-label">Prepared For</div>
+          <div class="cover-meta-value">[Clinic Name]</div>
+        </div>
+        <div class="cover-meta-cell">
+          <div class="cover-meta-label">Date</div>
+          <div class="cover-meta-value">[Date]</div>
+        </div>
+        <div class="cover-meta-cell">
+          <div class="cover-meta-label">Valid Until</div>
+          <div class="cover-meta-value">[Date + 30 days]</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-bottom">
+      <div class="cover-footer-text">
+        SOURCE X · AI Operations for Ontario Healthcare Clinics<br>
+        Confidential — Prepared exclusively for the named recipient above
+      </div>
+      <a href="https://getsourcex.com" class="cover-footer-url">getsourcex.com</a>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SECTION 1: REVENUE LEAK SUMMARY
+  ════════════════════════════════════ -->
+  <div class="doc-section">
+    <div class="section-header">
+      <div class="section-num">Section 01</div>
+      <div class="section-title-block">
+        <h2 class="section-title">Your Revenue Leak Summary</h2>
+        <p class="section-intro">Based on our revenue audit, here is a conservative estimate of what your clinic is currently losing across the three gaps we identified. These numbers are calculated from your location count, daily appointment volume, and industry-standard benchmarks for your EMR and clinic size.</p>
+      </div>
+    </div>
+
+    <!-- Personalized numbers block -->
+    <div class="field-block">
+      <div class="field-block-label">Audit Inputs — [Clinic Name]</div>
+      <div class="field-row">
+        <span class="field-key">Clinic locations</span>
+        <span class="field-val editable">[Number] locations</span>
+      </div>
+      <div class="field-row">
+        <span class="field-key">Daily appointments</span>
+        <span class="field-val editable">[Number] appointments/day across all locations</span>
+      </div>
+      <div class="field-row">
+        <span class="field-key">Avg. visit value</span>
+        <span class="field-val editable">$[Amount] per visit</span>
+      </div>
+      <div class="field-row">
+        <span class="field-key">EMR system</span>
+        <span class="field-val editable">[Juvonno / Jane / ClinicSense / PracticePerfect]</span>
+      </div>
+      <div class="field-row">
+        <span class="field-key">Estimated missed-call rate</span>
+        <span class="field-val editable">[X]% of daily inbound calls</span>
+      </div>
+      <div class="field-row">
+        <span class="field-key">Estimated no-show rate</span>
+        <span class="field-val editable">[X]% of daily appointments</span>
+      </div>
+    </div>
+
+    <div class="leak-summary">
+      <div class="leak-row leak-row-header">
+        <div class="leak-cell leak-num-cell">#</div>
+        <div class="leak-cell">Revenue Gap</div>
+        <div class="leak-cell" style="text-align:right;">Est. Monthly Impact</div>
+        <div class="leak-cell" style="text-align:right;">Current Status</div>
+      </div>
+      <div class="leak-row">
+        <div class="leak-cell leak-num-cell">01</div>
+        <div class="leak-cell leak-name-cell">Missed-call revenue loss</div>
+        <div class="leak-cell leak-impact-cell">$[Amount]/mo</div>
+        <div class="leak-cell leak-status-cell status-gap">No system ✗</div>
+      </div>
+      <div class="leak-row">
+        <div class="leak-cell leak-num-cell">02</div>
+        <div class="leak-cell leak-name-cell">No-show slot revenue loss</div>
+        <div class="leak-cell leak-impact-cell">$[Amount]/mo</div>
+        <div class="leak-cell leak-status-cell status-gap">No system ✗</div>
+      </div>
+      <div class="leak-row">
+        <div class="leak-cell leak-num-cell">03</div>
+        <div class="leak-cell leak-name-cell">Dormant patient reactivation gap</div>
+        <div class="leak-cell leak-impact-cell">$[Amount]/qtr</div>
+        <div class="leak-cell leak-status-cell status-gap">No system ✗</div>
+      </div>
+      <div class="leak-row total-leak-row">
+        <div class="leak-cell leak-num-cell"></div>
+        <div class="leak-cell leak-name-cell">Conservative Total Monthly Loss</div>
+        <div class="leak-cell leak-impact-cell">$[Total]/mo</div>
+        <div class="leak-cell"></div>
+      </div>
+    </div>
+
+    <p style="font-size:12px; color:var(--gray-600); margin-top:12px; line-height:1.6;">
+      These are conservative estimates based on industry benchmarks. The Source X system will produce exact tracked numbers — every missed call recovered, every no-show rebooked, every dormant patient reactivated — attributed to measurable revenue in your monthly report.
+    </p>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SECTION 2: THE PROPOSED SOLUTION
+  ════════════════════════════════════ -->
+  <div class="doc-section">
+    <div class="section-header">
+      <div class="section-num">Section 02</div>
+      <div class="section-title-block">
+        <h2 class="section-title">The Proposed Solution</h2>
+        <p class="section-intro">Three AI modules, fully built and managed by SOURCE X. Integrated with your existing EMR. PHIPA-compliant by design. You do not manage any part of this system — you receive a monthly report showing exactly how much revenue was recovered.</p>
+      </div>
+    </div>
+
+    <div class="module-proposal-list">
+      <div class="module-proposal-item">
+        <div class="mpi-label">
+          <div class="mpi-num">Module 01</div>
+          <div class="mpi-name">Missed-Call AI Agent</div>
+        </div>
+        <div class="mpi-body">
+          <div class="mpi-desc">The moment a call is missed at any of your locations, an AI voice agent calls the patient back within 60 seconds. It speaks naturally, identifies the clinic, captures the reason for calling, and books or re-routes the appointment directly into your EMR — without any staff involvement.</div>
+          <ul class="mpi-deliverables">
+            <li class="mpi-deliverable"><div class="mpi-del-dot"></div><div class="mpi-del-text">24/7 operation — catches after-hours and peak-hour misses</div></li>
+            <li class="mpi-deliverable"><div class="mpi-del-dot"></div><div class="mpi-del-text">Direct EMR booking integration (Juvonno / Jane / ClinicSense)</div></li>
+            <li class="mpi-deliverable"><div class="mpi-del-dot"></div><div class="mpi-del-text">Cross-location routing logic for multi-site clinics</div></li>
+            <li class="mpi-deliverable"><div class="mpi-del-dot"></div><div class="mpi-del-text">PHIPA-compliant call recording and consent handling</div></li>
+          </ul>
+        </div>
+        <div class="mpi-value">
+          <div class="mpi-val-num">$6,000</div>
+          <div class="mpi-val-label">standalone value</div>
+        </div>
+      </div>
+      <div class="module-proposal-item">
+        <div class="mpi-label">
+          <div class="mpi-num">Module 02</div>
+          <div class="mpi-name">No-Show Recovery Engine</div>
+        </div>
+        <div class="mpi-body">
+          <div class="mpi-desc">The moment a no-show is registered in your EMR, a recovery sequence fires automatically. SMS outreach first, followed by a voice follow-up if no response within 30 minutes. Rebook logic attempts to fill the vacated slot before end of business. Repeat no-show patients can trigger deposit requirements.</div>
+          <ul class="mpi-deliverables">
+            <li class="mpi-deliverable"><div class="mpi-del-dot"></div><div class="mpi-del-text">Fires within minutes of no-show event in EMR</div></li>
+            <li class="mpi-deliverable"><div class="mpi-del-dot"></div><div class="mpi-del-text">SMS + voice dual-channel recovery sequence</div></li>
+            <li class="mpi-deliverable"><div class="mpi-del-dot"></div><div class="mpi-del-text">Same-day rebooking logic — slot recovered before close</div></li>
+            <li class="mpi-deliverable"><div class="mpi-del-dot"></div><div class="mpi-del-text">Repeat no-show deposit trigger (configurable)</div></li>
+          </ul>
+        </div>
+        <div class="mpi-value">
+          <div class="mpi-val-num">$3,500</div>
+          <div class="mpi-val-label">standalone value</div>
+        </div>
+      </div>
+      <div class="module-proposal-item">
+        <div class="mpi-label">
+          <div class="mpi-num">Module 03</div>
+          <div class="mpi-name">Patient Reactivation Engine</div>
+        </div>
+        <div class="mpi-body">
+          <div class="mpi-desc">Once per month, the system pulls all patients who have not booked in 60+ days, segments them by case type, and sends personalized PHIPA-compliant outreach. Not mass blasts — relevant, timed, compliant messaging that brings dormant patients back before a competitor reaches them first.</div>
+          <ul class="mpi-deliverables">
+            <li class="mpi-deliverable"><div class="mpi-del-dot"></div><div class="mpi-del-text">Monthly automated pull of all 60+ day inactive patients</div></li>
+            <li class="mpi-deliverable"><div class="mpi-del-dot"></div><div class="mpi-del-text">Segmented by case type: back, neck, post-op, MVA, general</div></li>
+            <li class="mpi-deliverable"><div class="mpi-del-dot"></div><div class="mpi-del-text">PHIPA-compliant by design — consent-managed outreach</div></li>
+            <li class="mpi-deliverable"><div class="mpi-del-dot"></div><div class="mpi-del-text">Booking links routed back to your EMR</div></li>
+          </ul>
+        </div>
+        <div class="mpi-value">
+          <div class="mpi-val-num">$3,000</div>
+          <div class="mpi-val-label">standalone value</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SECTION 3: FULL OFFER STACK
+  ════════════════════════════════════ -->
+  <div class="doc-section">
+    <div class="section-header">
+      <div class="section-num">Section 03</div>
+      <div class="section-title-block">
+        <h2 class="section-title">Full Offer Stack</h2>
+        <p class="section-intro">Every component that SOURCE X builds, deploys, and manages on your behalf. Each line below carries an individual market value. The bundle price is structured so the math becomes obvious within 30 days of launch.</p>
+      </div>
+    </div>
+
+    <table class="proposal-stack">
+      <tbody>
+        <tr><td>AI Voice Agent for missed-call recovery (24/7)</td><td>$6,000</td></tr>
+        <tr><td>Smart no-show reduction sequence (SMS + voice)</td><td>$3,500</td></tr>
+        <tr><td>Dormant patient reactivation campaigns</td><td>$3,000</td></tr>
+        <tr><td>EMR integration + PHIPA compliance setup (Juvonno / Jane / ClinicSense)</td><td>$4,000</td></tr>
+        <tr><td>Custom dashboard with monthly ROI reporting</td><td>$1,500</td></tr>
+        <tr><td>90-day implementation support and prompt tuning</td><td>$2,500</td></tr>
+        <tr><td>Staff onboarding + 1-page front desk playbooks</td><td>$1,000</td></tr>
+        <tr class="stack-total-row"><td>Total Stack Value</td><td>$21,500</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SECTION 4: PRICING & PAYMENT TERMS
+  ════════════════════════════════════ -->
+  <div class="doc-section">
+    <div class="section-header">
+      <div class="section-num">Section 04</div>
+      <div class="section-title-block">
+        <h2 class="section-title">Pricing &amp; Payment Terms</h2>
+        <p class="section-intro">The system is priced to recover the setup investment inside the first 30 days of operation. Recover 63 missed appointments at $120 per visit — or any combination that equals $7,500 in booked revenue — and the system has paid for itself.</p>
+      </div>
+    </div>
+
+    <div class="pricing-proposal">
+      <div class="pp-cell">
+        <div class="pp-label">Setup Fee · Due at Contract Signing</div>
+        <div class="pp-amount">$7,500</div>
+        <div class="pp-desc">Covers full system build, EMR integration, PHIPA compliance setup, staff onboarding, and the first month of managed operation. No additional costs until Month 2.</div>
+      </div>
+      <div class="pp-cell">
+        <div class="pp-label">Monthly Retainer · Beginning Month 2</div>
+        <div class="pp-amount">$1,500</div>
+        <div class="pp-desc">Fully managed. Covers ongoing AI operation, monthly performance reporting with revenue attribution, tuning, edge case handling, and priority support.</div>
+      </div>
+    </div>
+
+    <div class="pp-math">
+      <span class="pp-math-lbl">Year-one total value (Month 1 included in setup)</span>
+      <span class="pp-math-val">$7,500 + ($1,500 × 11 months) = $24,000</span>
+    </div>
+
+    <div class="field-block" style="margin-bottom:0;">
+      <div class="field-block-label">Payment Terms</div>
+      <div class="field-row">
+        <span class="field-key">Setup fee</span>
+        <span class="field-val">Due in full at contract signing. Initiates the 21-day build.</span>
+      </div>
+      <div class="field-row">
+        <span class="field-key">Monthly retainer</span>
+        <span class="field-val">Billed on the 1st of each month, beginning Month 2.</span>
+      </div>
+      <div class="field-row">
+        <span class="field-key">Payment methods</span>
+        <span class="field-val">E-transfer, credit card, or corporate cheque.</span>
+      </div>
+      <div class="field-row">
+        <span class="field-key">Contract term</span>
+        <span class="field-val">Month-to-month after the initial 3-month commitment period.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SECTION 5: THE GUARANTEE
+  ════════════════════════════════════ -->
+  <div class="doc-section">
+    <div class="section-header">
+      <div class="section-num">Section 05</div>
+      <div class="section-title-block">
+        <h2 class="section-title">The 60-Day ROI Guarantee</h2>
+        <p class="section-intro">We put our money where our methodology is. If the system does not recover at least the equivalent of your setup fee in measurable booked revenue within 60 days of going live, you get a full refund and continued free service.</p>
+      </div>
+    </div>
+
+    <div class="guarantee-proposal">
+      <div class="gp-top">
+        <div class="gp-icon">◈</div>
+        <div class="gp-title">If we don't perform, you don't pay.</div>
+      </div>
+      <div class="gp-body">
+        If the Clinic Revenue Recovery System does not recover at least <strong>$7,500 in measurable booked revenue</strong> (attributable directly to SOURCE X systems) within <strong>60 calendar days of the system go-live date</strong>, SOURCE X will:
+        <br><br>
+        1. Refund the full $7,500 setup fee with no questions asked.<br>
+        2. Continue running the system for an additional 30 days at zero cost.<br>
+        3. Allow the client to keep every component that was built and integrated.
+      </div>
+      <div class="gp-terms">
+        <div class="gp-term-item">
+          <div class="gp-term-title">Measurement Method</div>
+          <div class="gp-term-desc">Revenue attribution is tracked via the SOURCE X dashboard. Calls recovered, no-shows rebooked, and patient reactivations are tagged and confirmed in the EMR.</div>
+        </div>
+        <div class="gp-term-item">
+          <div class="gp-term-title">Eligibility Conditions</div>
+          <div class="gp-term-desc">EMR access must be provided within 5 business days of signing. Any delays caused by the client extending the clock proportionally.</div>
+        </div>
+        <div class="gp-term-item">
+          <div class="gp-term-title">Our Confidence</div>
+          <div class="gp-term-desc">At a 4-location clinic missing 15 calls/week at $120/visit, the system recovers the setup fee in the first 11 business days of operation.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SECTION 6: IMPLEMENTATION TIMELINE
+  ════════════════════════════════════ -->
+  <div class="doc-section">
+    <div class="section-header">
+      <div class="section-num">Section 06</div>
+      <div class="section-title-block">
+        <h2 class="section-title">Implementation Timeline</h2>
+        <p class="section-intro">From contract signing to full system live in 21 days. Your staff will complete one 60-minute onboarding session. That is the only ask. Everything else is handled by SOURCE X.</p>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-row">
+        <div class="tl-phase">
+          <div class="tl-phase-days">Days 1–3</div>
+          <div class="tl-phase-name">Onboarding</div>
+        </div>
+        <div class="tl-body">
+          <div class="tl-title">Setup &amp; Access</div>
+          <div class="tl-desc">EMR credentials provisioned. PHIPA compliance audit completed. Clinic workflow mapped. Technical environment configured. No staff involvement required beyond providing EMR access.</div>
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="tl-phase">
+          <div class="tl-phase-days">Days 4–10</div>
+          <div class="tl-phase-name">Build</div>
+        </div>
+        <div class="tl-body">
+          <div class="tl-title">AI Agent + Automation Build</div>
+          <div class="tl-desc">All three modules built and tested in a sandbox environment. AI voice agent trained on your services, locations, and booking logic. EMR integration tested end-to-end. PHIPA consent flows confirmed.</div>
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="tl-phase">
+          <div class="tl-phase-days">Days 11–17</div>
+          <div class="tl-phase-name">Integration</div>
+        </div>
+        <div class="tl-body">
+          <div class="tl-title">Live Integration &amp; Testing</div>
+          <div class="tl-desc">System connected to live EMR. Stress-tested against real call patterns and no-show scenarios. Edge cases identified and resolved. Dashboard configured with your metrics.</div>
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="tl-phase">
+          <div class="tl-phase-days">Days 18–21</div>
+          <div class="tl-phase-name">Launch</div>
+        </div>
+        <div class="tl-body">
+          <div class="tl-title">Staff Onboarding &amp; Go-Live</div>
+          <div class="tl-desc">60-minute front desk onboarding session (what to expect, how handoffs work). 1-page playbook delivered. System goes live. 60-day guarantee clock starts. Weekly check-ins begin.</div>
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="tl-phase">
+          <div class="tl-phase-days">Day 45</div>
+          <div class="tl-phase-name">Review</div>
+        </div>
+        <div class="tl-body">
+          <div class="tl-title">30-Day Performance Review</div>
+          <div class="tl-desc">First revenue attribution report delivered. Calls recovered, no-shows rebooked, and reactivation results reviewed together. Tuning applied based on performance data. Guarantee milestone confirmed.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SECTION 7: NEXT STEPS + SIGNATURE
+  ════════════════════════════════════ -->
+  <div class="doc-section" style="border-bottom:none;">
+    <div class="section-header">
+      <div class="section-num">Section 07</div>
+      <div class="section-title-block">
+        <h2 class="section-title">Next Steps</h2>
+        <p class="section-intro">Three steps to get the system live in 21 days. Total time required from the clinic: under 2 hours across the entire onboarding period.</p>
+      </div>
+    </div>
+
+    <div class="next-steps-list">
+      <div class="ns-item">
+        <div class="ns-step-num">Step 01</div>
+        <div class="ns-action">Sign the proposal and submit the $7,500 setup fee. Build begins same business day.</div>
+        <div class="ns-owner">Client</div>
+      </div>
+      <div class="ns-item">
+        <div class="ns-step-num">Step 02</div>
+        <div class="ns-action">Provide EMR admin credentials and one point of contact for technical onboarding questions.</div>
+        <div class="ns-owner">Client</div>
+      </div>
+      <div class="ns-item">
+        <div class="ns-step-num">Step 03</div>
+        <div class="ns-action">Attend the 60-minute front desk onboarding session on Day 18–21. System goes live. Results begin.</div>
+        <div class="ns-owner">Client + Source X</div>
+      </div>
+    </div>
+
+    <div class="signature-block">
+      <div class="sig-panel">
+        <div class="sig-panel-title">Authorized by — SOURCE X</div>
+        <div class="sig-field-row">
+          <div class="sig-field-label">Signature</div>
+          <div class="sig-field-line"></div>
+        </div>
+        <div class="sig-field-row">
+          <div class="sig-field-label">Printed Name</div>
+          <div class="sig-prefilled">Vatsal — Founder, SOURCE X</div>
+        </div>
+        <div class="sig-field-row">
+          <div class="sig-field-label">Date</div>
+          <div class="sig-field-line"></div>
+        </div>
+      </div>
+      <div class="sig-panel">
+        <div class="sig-panel-title">Authorized by — [Clinic Name]</div>
+        <div class="sig-field-row">
+          <div class="sig-field-label">Signature</div>
+          <div class="sig-field-line"></div>
+        </div>
+        <div class="sig-field-row">
+          <div class="sig-field-label">Printed Name &amp; Title</div>
+          <div class="sig-field-line"></div>
+        </div>
+        <div class="sig-field-row">
+          <div class="sig-field-label">Date</div>
+          <div class="sig-field-line"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:48px; padding-top:32px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <img src="sourcex-logo.png" alt="" style="width:22px;height:22px;object-fit:contain;">
+        <span style="font-size:11px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--gray-600);">Source X · AI Operations for Ontario Healthcare</span>
+      </div>
+      <div style="font-size:11px; color:var(--gray-600); text-align:right; line-height:1.7;">
+        getsourcex.com &nbsp;·&nbsp; workwithsourcex@gmail.com<br>
+        Confidential — Prepared exclusively for [Clinic Name]
+      </div>
+    </div>
+  </div>
+
+</div><!-- /document -->
+</body>
+</html>

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOURCE X — Free Clinic Revenue Leak Audit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:       #1E3A8A;
+      --navy-dark:  #1e2f6a;
+      --navy-light: #2d4fa3;
+      --near-black: #0F172A;
+      --blue-light: #DBEAFE;
+      --blue-mid:   #93C5FD;
+      --white:      #FFFFFF;
+      --gray-50:    #F8FAFC;
+      --gray-100:   #F1F5F9;
+      --gray-300:   #CBD5E1;
+      --gray-500:   #64748B;
+      --gray-700:   #334155;
+      --red-50:     #FFF1F2;
+      --red-600:    #DC2626;
+      --green-50:   #F0FDF4;
+      --green-600:  #16A34A;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 16px; }
+    body {
+      font-family: 'Montserrat', -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: #E2E8F0;
+      min-height: 100vh;
+    }
+
+    /* ── HERO BAND ── */
+    .hero {
+      background: var(--navy);
+      padding: 64px 24px 56px;
+      text-align: center;
+    }
+
+    .hero-logo {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.24em;
+      text-transform: uppercase; color: rgba(255,255,255,0.6);
+      margin-bottom: 32px;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--blue-mid);
+      border: 1px solid rgba(147,197,253,0.3); padding: 6px 16px;
+      margin-bottom: 28px;
+    }
+
+    .hero-headline {
+      font-size: clamp(26px, 5vw, 40px);
+      font-weight: 900; letter-spacing: -0.02em;
+      line-height: 1.1; color: #fff;
+      max-width: 640px; margin: 0 auto 20px;
+    }
+
+    .hero-headline em { font-style: normal; color: var(--blue-light); }
+
+    .hero-sub {
+      font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.7;
+      max-width: 500px; margin: 0 auto 40px;
+    }
+
+    .hero-stats {
+      display: flex; justify-content: center; gap: 0;
+      border: 1px solid rgba(255,255,255,0.12);
+      max-width: 540px; margin: 0 auto;
+    }
+
+    .hero-stat {
+      flex: 1; padding: 16px 20px;
+      border-right: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .hero-stat:last-child { border-right: none; }
+
+    .hero-stat-num {
+      font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 2px;
+    }
+
+    .hero-stat-lbl {
+      font-size: 8.5px; font-weight: 600; color: var(--blue-mid);
+      text-transform: uppercase; letter-spacing: 0.12em;
+    }
+
+    /* ── FORM CARD ── */
+    .form-wrap {
+      max-width: 640px; margin: -32px auto 64px;
+      padding: 0 16px;
+    }
+
+    .form-card {
+      background: #fff;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.14);
+      padding: 48px 48px 40px;
+    }
+
+    @media (max-width: 600px) {
+      .form-card { padding: 32px 24px; }
+    }
+
+    .form-title {
+      font-size: 16px; font-weight: 800; color: var(--near-black);
+      letter-spacing: -0.01em; margin-bottom: 6px;
+    }
+
+    .form-sub {
+      font-size: 12px; color: var(--gray-500); line-height: 1.6; margin-bottom: 32px;
+    }
+
+    .form-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 500px) {
+      .form-grid { grid-template-columns: 1fr; }
+    }
+
+    .field-full { grid-column: 1 / -1; }
+
+    .field-label {
+      display: block; font-size: 10px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--navy); margin-bottom: 7px;
+    }
+
+    .field-label .required { color: var(--red-600); margin-left: 2px; }
+
+    .field-input, .field-select {
+      width: 100%; padding: 11px 14px;
+      border: 1px solid var(--gray-300);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px; font-weight: 500; color: var(--near-black);
+      background: #fff;
+      outline: none; transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+
+    .field-input:focus, .field-select:focus {
+      border-color: var(--navy);
+    }
+
+    .field-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748B' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+
+    .privacy-note {
+      font-size: 10px; color: var(--gray-500); line-height: 1.6;
+      margin-bottom: 20px; margin-top: 4px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: var(--navy); color: #fff;
+      border: none; padding: 16px 24px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px; font-weight: 800; letter-spacing: 0.16em;
+      text-transform: uppercase; cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .submit-btn:hover { background: var(--navy-light); }
+
+    .submit-note {
+      font-size: 10px; color: var(--gray-500); text-align: center;
+      margin-top: 12px; line-height: 1.6;
+    }
+
+    /* ── WHAT YOU GET SECTION ── */
+    .what-you-get {
+      max-width: 640px; margin: 0 auto 48px; padding: 0 16px;
+    }
+
+    .section-eyebrow {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--gray-500); margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .deliverable-list {
+      display: flex; flex-direction: column; gap: 12px;
+    }
+
+    .deliverable-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      background: #fff; border: 1px solid var(--gray-100); padding: 16px 20px;
+    }
+
+    .deliverable-check {
+      color: var(--green-600); font-size: 14px; font-weight: 900;
+      margin-top: 1px; flex-shrink: 0;
+    }
+
+    .deliverable-text {
+      font-size: 12px; color: var(--gray-700); line-height: 1.6;
+    }
+
+    .deliverable-text strong { color: var(--near-black); }
+
+    /* ── OPERATOR CREDIBILITY ── */
+    .credibility-band {
+      background: var(--near-black);
+      padding: 40px 24px;
+      text-align: center;
+      margin-bottom: 0;
+    }
+
+    .cred-eyebrow {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--blue-mid); margin-bottom: 16px;
+    }
+
+    .cred-quote {
+      font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.7;
+      max-width: 560px; margin: 0 auto 20px; font-style: italic;
+    }
+
+    .cred-attribution {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: rgba(255,255,255,0.4);
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--near-black); padding: 20px 24px;
+      text-align: center; border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .footer-text {
+      font-size: 10px; color: rgba(255,255,255,0.3); line-height: 1.8;
+    }
+
+    /* ── SUCCESS STATE ── */
+    .success-state {
+      display: none;
+      background: var(--green-50);
+      border: 1px solid var(--green-600);
+      padding: 24px 28px; margin-top: 24px;
+    }
+
+    .success-title {
+      font-size: 14px; font-weight: 800; color: var(--green-600); margin-bottom: 6px;
+    }
+
+    .success-text {
+      font-size: 12px; color: var(--gray-700); line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-logo">SOURCE X · AI Operations for Ontario Healthcare</div>
+  <div class="hero-badge">Free · No Commitment · 48-Hour Delivery</div>
+  <h1 class="hero-headline">
+    How Much Is Your Clinic<br><em>Actually</em> Losing?
+  </h1>
+  <p class="hero-sub">
+    Submit your clinic info below. Within 48 hours, you receive a personalized 4-page
+    revenue leak estimate — specific to your location count, EMR, and call volume.
+    No pitch inside it. Just numbers.
+  </p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num">$8K–$25K</div>
+      <div class="hero-stat-lbl">Monthly leak · typical 3-location clinic</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">48 hrs</div>
+      <div class="hero-stat-lbl">Audit delivered to your inbox</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">0</div>
+      <div class="hero-stat-lbl">Obligation or pitch</div>
+    </div>
+  </div>
+</div>
+
+<!-- FORM -->
+<div class="form-wrap">
+  <div class="form-card">
+
+    <div class="form-title">Request Your Free Revenue Leak Audit</div>
+    <p class="form-sub">
+      Five questions. Takes 2 minutes. The audit we build from this will show you exactly
+      where your clinic is losing money and what it would take to stop it.
+    </p>
+
+    <form id="auditForm" onsubmit="handleSubmit(event)">
+
+      <div class="form-grid">
+
+        <div>
+          <label class="field-label" for="clinic_name">Clinic Name <span class="required">*</span></label>
+          <input class="field-input" type="text" id="clinic_name" name="clinic_name"
+                 placeholder="e.g. Peak Physio" required>
+        </div>
+
+        <div>
+          <label class="field-label" for="owner_name">Your Name <span class="required">*</span></label>
+          <input class="field-input" type="text" id="owner_name" name="owner_name"
+                 placeholder="First and last name" required>
+        </div>
+
+        <div>
+          <label class="field-label" for="email">Email <span class="required">*</span></label>
+          <input class="field-input" type="email" id="email" name="email"
+                 placeholder="you@yourclinic.com" required>
+        </div>
+
+        <div>
+          <label class="field-label" for="phone">Phone (optional)</label>
+          <input class="field-input" type="tel" id="phone" name="phone"
+                 placeholder="416-555-0100">
+        </div>
+
+        <div>
+          <label class="field-label" for="city">City <span class="required">*</span></label>
+          <input class="field-input" type="text" id="city" name="city"
+                 placeholder="e.g. Mississauga" required>
+        </div>
+
+        <div>
+          <label class="field-label" for="locations">Number of Locations <span class="required">*</span></label>
+          <select class="field-select" id="locations" name="locations" required>
+            <option value="">Select...</option>
+            <option value="2">2 locations</option>
+            <option value="3">3 locations</option>
+            <option value="4">4 locations</option>
+            <option value="5">5 locations</option>
+            <option value="6">6 locations</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="field-label" for="emr">EMR System <span class="required">*</span></label>
+          <select class="field-select" id="emr" name="emr" required>
+            <option value="">Select...</option>
+            <option value="Jane">Jane App</option>
+            <option value="Juvonno">Juvonno</option>
+            <option value="ClinicSense">ClinicSense</option>
+            <option value="PracticePerfect">PracticePerfect</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="field-label" for="daily_calls">Est. Daily Inbound Calls</label>
+          <select class="field-select" id="daily_calls" name="daily_calls">
+            <option value="">Not sure</option>
+            <option value="30">Under 40</option>
+            <option value="50">40–60</option>
+            <option value="70">60–80</option>
+            <option value="90">80–100</option>
+            <option value="120">100+</option>
+          </select>
+        </div>
+
+        <div class="field-full">
+          <label class="field-label" for="hours">Clinic Hours</label>
+          <input class="field-input" type="text" id="hours" name="hours"
+                 placeholder="e.g. Mon–Fri 8am–7pm, Sat 9am–3pm">
+        </div>
+
+        <div class="field-full">
+          <label class="field-label" for="notes">Anything specific you want the audit to focus on?</label>
+          <input class="field-input" type="text" id="notes" name="notes"
+                 placeholder="e.g. missed calls are our biggest pain, or we have a high no-show rate">
+        </div>
+
+      </div>
+
+      <p class="privacy-note">
+        Your clinic information is used only to build your personalized audit. It is never shared,
+        sold, or used for any other purpose. PHIPA-aware handling throughout.
+      </p>
+
+      <button type="submit" class="submit-btn">Request My Free Revenue Leak Audit →</button>
+
+      <p class="submit-note">
+        You'll receive your personalized 4-page report within 48 hours.<br>
+        No pitch inside it. Just your numbers.
+      </p>
+
+    </form>
+
+    <div class="success-state" id="successState">
+      <div class="success-title">Request sent — we'll have your audit ready within 48 hours.</div>
+      <div class="success-text">
+        A Gmail compose window just opened with your clinic details. Hit Send to confirm your request
+        (or it may have sent automatically). You'll receive your personalized 4-page Revenue Leak Audit
+        at the email address you provided within 48 hours. No pitch inside it — just your numbers.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- WHAT YOU GET -->
+<div class="what-you-get">
+  <div class="section-eyebrow">What's in your personalized audit</div>
+  <div class="deliverable-list">
+    <div class="deliverable-item">
+      <div class="deliverable-check">✓</div>
+      <div class="deliverable-text">
+        <strong>Missed-call revenue estimate</strong> — based on your actual call volume and
+        location count. Shows exactly how many calls you're likely missing per week and
+        what each one costs in first-visit revenue.
+      </div>
+    </div>
+    <div class="deliverable-item">
+      <div class="deliverable-check">✓</div>
+      <div class="deliverable-text">
+        <strong>No-show recovery analysis</strong> — your estimated daily no-show losses
+        compared against the Ontario benchmark, and how much is recoverable with same-day automation.
+      </div>
+    </div>
+    <div class="deliverable-item">
+      <div class="deliverable-check">✓</div>
+      <div class="deliverable-text">
+        <strong>Dormant patient database estimate</strong> — number of inactive patients
+        (90+ days) in your system and the reactivation revenue opportunity they represent.
+      </div>
+    </div>
+    <div class="deliverable-item">
+      <div class="deliverable-check">✓</div>
+      <div class="deliverable-text">
+        <strong>EMR-specific integration note</strong> — what a SOURCE X deployment looks like
+        specifically for your EMR (Jane, Juvonno, ClinicSense, or PracticePerfect).
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CREDIBILITY -->
+<div class="credibility-band">
+  <div class="cred-eyebrow">Why SOURCE X is different</div>
+  <p class="cred-quote">
+    "Every other AI agency pitching Ontario clinic owners right now reads about clinics
+    in case studies. We operate inside one — a 5-location physio clinic in Etobicoke.
+    Every system we build, we have already run on our own bookings first."
+  </p>
+  <div class="cred-attribution">Vatsal · Founder, SOURCE X · Etobicoke, Ontario</div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p class="footer-text">
+    SOURCE X · AI Operations for Ontario Healthcare Clinics · getsourcex.com<br>
+    workwithsourcex@gmail.com · PHIPA-compliant systems · Ontario-based<br>
+    <br>
+    Founding-member pricing ($7,500 setup + $1,500/mo) locked for first 10 clinics only.
+  </p>
+</div>
+
+<script>
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    var f = document.getElementById('auditForm');
+    var clinic   = f.clinic_name.value.trim();
+    var owner    = f.owner_name.value.trim();
+    var email    = f.email.value.trim();
+    var phone    = f.phone.value.trim() || 'Not provided';
+    var city     = f.city.value.trim();
+    var locs     = f.locations.value;
+    var emr      = f.emr.value;
+    var calls    = f.daily_calls.value || 'Not sure';
+    var hours    = f.hours.value.trim() || 'Not provided';
+    var notes    = f.notes.value.trim() || 'None';
+
+    // Validate required fields
+    if (!clinic || !owner || !email || !city || !locs || !emr) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    var subject = 'Audit Request — ' + clinic + ' (' + city + ', ' + locs + ' locations)';
+
+    var body = [
+      'NEW AUDIT REQUEST — SOURCE X',
+      '================================',
+      '',
+      'Clinic Name:      ' + clinic,
+      'Owner / Director: ' + owner,
+      'Email:            ' + email,
+      'Phone:            ' + phone,
+      'City:             ' + city,
+      'Locations:        ' + locs,
+      'EMR System:       ' + emr,
+      'Daily Calls:      ' + calls,
+      'Hours:            ' + hours,
+      'Notes:            ' + notes,
+      '',
+      '================================',
+      'TO GENERATE THE AUDIT:',
+      'cd "/Users/vatsa/Desktop/SOURCE X Agents "',
+      'python3 tools/generate_audit.py \\',
+      '  --name "' + clinic + '" \\',
+      '  --owner "' + owner + '" \\',
+      '  --city "' + city + '" \\',
+      '  --locations ' + locs + ' \\',
+      '  --emr "' + emr + '" \\',
+      '  --daily-calls ' + calls + ' \\',
+      '  --hours "' + hours + '"',
+      '',
+      'Then open the file in Chrome → Cmd+P → Save as PDF → email to: ' + email,
+    ].join('\n');
+
+    // Open Gmail compose with pre-filled subject and body
+    var gmailURL = 'https://mail.google.com/mail/?view=cm'
+      + '&to=workwithsourcex@gmail.com'
+      + '&su=' + encodeURIComponent(subject)
+      + '&body=' + encodeURIComponent(body);
+
+    window.open(gmailURL, '_blank');
+
+    // Show success state
+    document.getElementById('auditForm').style.display = 'none';
+    document.getElementById('successState').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: sourcex-audit-server
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn tools.audit_server:app
+    envVars:
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: FROM_EMAIL
+        value: workwithsourcex@gmail.com
+      - key: FROM_NAME
+        value: Vatsal | SOURCE X
+      - key: NOTIFY_EMAIL
+        value: workwithsourcex@gmail.com

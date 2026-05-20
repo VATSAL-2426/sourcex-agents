@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOURCE X — Clinic Revenue Leak Audit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       CORE VARIABLES & RESET
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    :root {
+      --navy:       #1E3A8A;
+      --navy-dark:  #1e2f6a;
+      --navy-light: #2d4fa3;
+      --near-black: #0F172A;
+      --blue-light: #DBEAFE;
+      --blue-mid:   #93C5FD;
+      --white:      #FFFFFF;
+      --gray-50:    #F8FAFC;
+      --gray-100:   #F1F5F9;
+      --gray-300:   #CBD5E1;
+      --gray-500:   #64748B;
+      --gray-700:   #334155;
+      --red-50:     #FFF1F2;
+      --red-100:    #FFE4E6;
+      --red-600:    #DC2626;
+      --red-800:    #991B1B;
+      --green-50:   #F0FDF4;
+      --green-100:  #DCFCE7;
+      --green-600:  #16A34A;
+      --green-800:  #166534;
+    }
+
+    *, *::before, *::after {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+
+    html { font-size: 10pt; }
+
+    body {
+      font-family: 'Montserrat', -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: #E2E8F0;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       PRINT SETUP
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    @page {
+      size: letter portrait;
+      margin: 0;
+    }
+
+    @media print {
+      html { font-size: 10pt; }
+      body { background: #fff; margin: 0; padding: 0; }
+      .screen-bar { display: none !important; }
+      .page { box-shadow: none !important; margin: 0 !important; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       SCREEN PREVIEW TOOLBAR
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .screen-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: rgba(15, 23, 42, 0.97);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 12px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 1000;
+      backdrop-filter: blur(12px);
+    }
+
+    .screen-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .screen-bar-logo {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      mix-blend-mode: screen;
+    }
+
+    .screen-bar-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #64748B;
+    }
+
+    .screen-bar-hint {
+      font-size: 11px;
+      font-weight: 500;
+      color: #475569;
+      font-style: italic;
+    }
+
+    .screen-bar-btn {
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+    .screen-bar-btn:hover { background: var(--navy-light); }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       PAGE SHELL
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .doc-wrap {
+      padding: 72px 0 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .page {
+      width: 8.5in;
+      min-height: 11in;
+      background: #fff;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+      page-break-after: always;
+      page-break-inside: avoid;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       ══ PAGE 1: COVER ══
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .cover {
+      background: var(--navy);
+      min-height: 11in;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+    }
+
+    .cover-inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 52px 64px 52px;
+    }
+
+    /* Cover top bar */
+    .cover-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: auto;
+    }
+
+    .cover-logo-block {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cover-logo-img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+      mix-blend-mode: screen;
+    }
+
+    .cover-logo-wordmark {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .cover-badge {
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--blue-mid);
+      border: 1px solid rgba(147, 197, 253, 0.3);
+      padding: 5px 12px;
+    }
+
+    /* Cover hero content */
+    .cover-hero {
+      padding: 72px 0 64px;
+    }
+
+    .cover-eyebrow {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--blue-mid);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .cover-eyebrow::before {
+      content: '';
+      width: 32px;
+      height: 1px;
+      background: var(--blue-mid);
+      opacity: 0.5;
+    }
+
+    .cover-headline {
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.08;
+      color: #fff;
+      margin-bottom: 28px;
+      max-width: 540px;
+    }
+
+    .cover-headline em {
+      font-style: normal;
+      color: var(--blue-light);
+    }
+
+    .cover-subhead {
+      font-size: 13.5px;
+      font-weight: 400;
+      line-height: 1.65;
+      color: var(--blue-light);
+      max-width: 480px;
+      opacity: 0.85;
+      margin-bottom: 48px;
+    }
+
+    /* Cover stat row */
+    .cover-stats {
+      display: flex;
+      gap: 0;
+      border: 1px solid rgba(255,255,255,0.12);
+      max-width: 520px;
+    }
+
+    .cover-stat {
+      flex: 1;
+      padding: 20px 24px;
+      border-right: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .cover-stat:last-child { border-right: none; }
+
+    .cover-stat-num {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #fff;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .cover-stat-lbl {
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--blue-mid);
+      letter-spacing: 0.06em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+
+    /* Cover diagnostic note */
+    .cover-diag-note {
+      margin-top: 48px;
+      padding: 24px 28px;
+      background: rgba(255,255,255,0.05);
+      border-left: 3px solid var(--blue-light);
+      max-width: 540px;
+    }
+
+    .cover-diag-note p {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--blue-light);
+      line-height: 1.7;
+      opacity: 0.85;
+    }
+
+    .cover-diag-note strong {
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* Cover footer */
+    .cover-footer {
+      border-top: 1px solid rgba(255,255,255,0.12);
+      padding: 24px 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cover-author {
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.04em;
+    }
+
+    .cover-author strong {
+      color: rgba(255,255,255,0.85);
+      font-weight: 700;
+    }
+
+    .cover-url {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--blue-mid);
+      text-decoration: none;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       ══ PAGES 2–6: QUESTION PAGES ══
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .q-page {
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Question top band */
+    .q-topband {
+      background: var(--navy);
+      padding: 18px 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .q-topband-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .q-num {
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--blue-mid);
+    }
+
+    .q-title-band {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: #fff;
+    }
+
+    .q-topband-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .q-topband-logo {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+      mix-blend-mode: screen;
+    }
+
+    .q-topband-wordmark {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+    }
+
+    /* Question body */
+    .q-body {
+      flex: 1;
+      padding: 40px 56px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    /* Problem stat callout */
+    .q-stat-callout {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      border: 1px solid var(--gray-300);
+      overflow: hidden;
+    }
+
+    .q-stat-left {
+      background: var(--navy);
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      min-width: 160px;
+    }
+
+    .q-stat-amount {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .q-stat-period {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--blue-mid);
+      margin-top: 4px;
+    }
+
+    .q-stat-right {
+      background: var(--gray-50);
+      padding: 20px 24px;
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    .q-stat-text {
+      font-size: 11.5px;
+      color: var(--gray-700);
+      line-height: 1.65;
+    }
+
+    .q-stat-text strong {
+      color: var(--near-black);
+      font-weight: 700;
+    }
+
+    /* Problem statement */
+    .q-problem {
+      font-size: 12px;
+      color: var(--gray-700);
+      line-height: 1.75;
+    }
+
+    /* Self-assessment question */
+    .q-assessment {
+      background: var(--gray-50);
+      border-left: 3px solid var(--navy);
+      padding: 16px 20px;
+    }
+
+    .q-assessment-label {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    .q-assessment-q {
+      font-size: 12px;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--near-black);
+      line-height: 1.6;
+    }
+
+    /* YES / NO checkboxes */
+    .q-checkbox-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .q-checkbox-option {
+      border: 1.5px solid var(--gray-300);
+      padding: 14px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .q-checkbox-box {
+      width: 16px;
+      height: 16px;
+      min-width: 16px;
+      border: 2px solid var(--gray-500);
+      margin-top: 1px;
+    }
+
+    .q-checkbox-option.yes-opt .q-checkbox-box {
+      border-color: var(--green-600);
+    }
+
+    .q-checkbox-option.no-opt .q-checkbox-box {
+      border-color: var(--red-600);
+    }
+
+    .q-checkbox-text {
+      font-size: 10.5px;
+      font-weight: 500;
+      color: var(--gray-700);
+      line-height: 1.5;
+    }
+
+    .q-checkbox-option.yes-opt .q-checkbox-text strong {
+      color: var(--green-600);
+    }
+
+    .q-checkbox-option.no-opt .q-checkbox-text strong {
+      color: var(--red-600);
+    }
+
+    /* If-NO box */
+    .q-if-no {
+      background: var(--red-50);
+      border: 1px solid #FECACA;
+      border-left: 3px solid var(--red-600);
+      padding: 16px 20px;
+    }
+
+    .q-if-no-label {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--red-600);
+      margin-bottom: 8px;
+    }
+
+    .q-if-no-text {
+      font-size: 11px;
+      color: var(--red-800);
+      line-height: 1.65;
+      font-weight: 500;
+    }
+
+    /* AI Fix box */
+    .q-fix {
+      background: var(--blue-light);
+      border: 1px solid #BFDBFE;
+      border-left: 3px solid var(--navy);
+      padding: 16px 20px;
+    }
+
+    .q-fix-label {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    .q-fix-content {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .q-fix-module-tag {
+      background: var(--navy);
+      color: #fff;
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      white-space: nowrap;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    .q-fix-text {
+      font-size: 11px;
+      color: var(--navy-dark);
+      line-height: 1.65;
+      font-weight: 500;
+    }
+
+    .q-fix-text strong {
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    /* Question footer */
+    .q-footer {
+      border-top: 1px solid var(--gray-100);
+      padding: 14px 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .q-footer-left {
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--gray-300);
+      letter-spacing: 0.06em;
+    }
+
+    .q-footer-right {
+      font-size: 9px;
+      color: var(--gray-300);
+      font-weight: 500;
+    }
+
+    .q-page-num {
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--navy);
+      background: var(--blue-light);
+      padding: 3px 8px;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       ══ PAGE 7: RESULTS + CTA ══
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .results-page {
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .results-topband {
+      background: var(--near-black);
+      padding: 18px 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .results-topband-title {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: #fff;
+    }
+
+    .results-topband-sub {
+      font-size: 9px;
+      font-weight: 500;
+      color: var(--gray-500);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .results-body {
+      flex: 1;
+      padding: 40px 56px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* Scoring table */
+    .scoring-section-label {
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      margin-bottom: 14px;
+    }
+
+    .scoring-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .scoring-table thead tr {
+      background: var(--near-black);
+    }
+
+    .scoring-table thead th {
+      padding: 12px 16px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+      text-align: left;
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .scoring-table thead th:last-child { border-right: none; }
+
+    .scoring-table tbody tr {
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .scoring-table tbody td {
+      padding: 16px 16px;
+      font-size: 11px;
+      vertical-align: middle;
+    }
+
+    .score-range {
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+
+    .score-range.low { color: #D97706; }
+    .score-range.mid { color: var(--red-600); }
+    .score-range.high { color: #7C3AED; }
+
+    .score-label {
+      font-weight: 700;
+      font-size: 11.5px;
+      color: var(--near-black);
+    }
+
+    .score-desc {
+      font-size: 10.5px;
+      color: var(--gray-500);
+      margin-top: 3px;
+      line-height: 1.5;
+    }
+
+    .score-at-risk {
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+
+    .score-at-risk.low { color: #D97706; }
+    .score-at-risk.mid { color: var(--red-600); }
+    .score-at-risk.high { color: #7C3AED; }
+
+    .score-action {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--gray-500);
+    }
+
+    /* Three modules */
+    .modules-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--gray-300);
+      border: 1px solid var(--gray-300);
+    }
+
+    .module-mini {
+      background: #fff;
+      padding: 20px 18px;
+    }
+
+    .module-mini-num {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      margin-bottom: 10px;
+    }
+
+    .module-mini-name {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .module-mini-desc {
+      font-size: 10px;
+      color: var(--gray-500);
+      line-height: 1.55;
+    }
+
+    /* CTA box */
+    .cta-box {
+      background: var(--navy);
+      padding: 36px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+    }
+
+    .cta-left {}
+
+    .cta-eyebrow {
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--blue-mid);
+      margin-bottom: 10px;
+    }
+
+    .cta-headline {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+
+    .cta-sub {
+      font-size: 11px;
+      color: var(--blue-light);
+      opacity: 0.8;
+      line-height: 1.6;
+      max-width: 380px;
+    }
+
+    .cta-right {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+
+    .cta-btn-primary {
+      background: #fff;
+      color: var(--navy);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 14px 24px;
+      text-decoration: none;
+      white-space: nowrap;
+      display: block;
+      text-align: center;
+    }
+
+    .cta-btn-secondary {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--blue-mid);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+
+    /* Results footer */
+    .results-footer {
+      background: var(--near-black);
+      padding: 16px 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .results-footer-logo-block {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .results-footer-logo {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      mix-blend-mode: screen;
+    }
+
+    .results-footer-wordmark {
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .results-footer-terms {
+      font-size: 8.5px;
+      color: rgba(255,255,255,0.3);
+      font-weight: 500;
+      text-align: right;
+      line-height: 1.6;
+    }
+
+    .results-footer-terms strong {
+      color: rgba(255,255,255,0.55);
+      font-weight: 700;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       SHARED UTILITY
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .divider { height: 1px; background: var(--gray-100); }
+  </style>
+</head>
+<body>
+
+<!-- ── SCREEN TOOLBAR ── -->
+<div class="screen-bar">
+  <div class="screen-bar-left">
+    <img src="sourcex-logo.png" alt="" class="screen-bar-logo">
+    <span class="screen-bar-title">SOURCE X — Clinic Revenue Leak Audit</span>
+    <span class="screen-bar-hint">Use File → Print → Save as PDF to export</span>
+  </div>
+  <button class="screen-bar-btn" onclick="window.print()">Export PDF</button>
+</div>
+
+<div class="doc-wrap">
+
+<!-- ══════════════════════════════════════════════════
+     PAGE 1 — COVER
+══════════════════════════════════════════════════ -->
+<div class="page cover">
+  <div class="cover-inner">
+
+    <div class="cover-topbar">
+      <div class="cover-logo-block">
+        <img src="sourcex-logo.png" alt="SOURCE X" class="cover-logo-img">
+        <span class="cover-logo-wordmark">Source X</span>
+      </div>
+      <span class="cover-badge">Revenue Diagnostic · Ontario Healthcare</span>
+    </div>
+
+    <div class="cover-hero">
+      <div class="cover-eyebrow">Clinic Revenue Leak Audit</div>
+
+      <h1 class="cover-headline">Is Your Clinic's AI Operating System Losing You <em>$10,000–$30,000</em> Per Month?</h1>
+
+      <p class="cover-subhead">A revenue diagnostic for Ontario physiotherapy and chiropractic clinic owners with 2–6 locations. Five questions. Five minutes. The answer will tell you exactly how much your clinic is leaving on the table every month.</p>
+
+      <div class="cover-stats">
+        <div class="cover-stat">
+          <div class="cover-stat-num">5</div>
+          <div class="cover-stat-lbl">Diagnostic Questions</div>
+        </div>
+        <div class="cover-stat">
+          <div class="cover-stat-num">3</div>
+          <div class="cover-stat-lbl">Revenue Gaps Addressed</div>
+        </div>
+        <div class="cover-stat">
+          <div class="cover-stat-num">60-Day</div>
+          <div class="cover-stat-lbl">ROI Guarantee</div>
+        </div>
+        <div class="cover-stat">
+          <div class="cover-stat-num">PHIPA</div>
+          <div class="cover-stat-lbl">Compliant by Design</div>
+        </div>
+      </div>
+
+      <div class="cover-diag-note">
+        <p>This is not a generic AI checklist. It is a diagnostic built from <strong>direct experience inside Ontario's clinic industry</strong>. SOURCE X's founder works inside a 5-location physiotherapy clinic in the GTA and built these systems to solve problems he observes firsthand, every day. Most clinic owners are not losing money from bad marketing or poor service. They are losing it because their clinic is <strong>operating without an AI layer that every modern multi-location practice will need to stay competitive</strong>. The five questions below will tell you where your biggest gaps are.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="cover-footer">
+    <div class="cover-author">
+      By <strong>Vatsal, Founder</strong> · SOURCE X · AI Operations for Ontario Healthcare Clinics
+    </div>
+    <a href="https://getsourcex.com" class="cover-url">getsourcex.com</a>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     PAGE 2 — QUESTION 1: MISSED CALLS
+══════════════════════════════════════════════════ -->
+<div class="page q-page">
+
+  <div class="q-topband">
+    <div class="q-topband-left">
+      <span class="q-num">Question 01 of 05</span>
+      <span style="color:rgba(255,255,255,0.2);">|</span>
+      <span class="q-title-band">Missed Calls</span>
+    </div>
+    <div class="q-topband-right">
+      <img src="sourcex-logo.png" alt="" class="q-topband-logo">
+      <span class="q-topband-wordmark">Source X</span>
+    </div>
+  </div>
+
+  <div class="q-body">
+
+    <div class="q-stat-callout">
+      <div class="q-stat-left">
+        <div class="q-stat-amount">$15,000+</div>
+        <div class="q-stat-period">per month</div>
+      </div>
+      <div class="q-stat-right">
+        <p class="q-stat-text">At a 3-location clinic with 60 daily inbound calls and a <strong>10% missed-call rate</strong>, that is 6 patients per day with zero follow-up. At $120 per initial assessment, that is <strong>$720 per day — over $15,000 per month</strong> — evaporating through the phone.</p>
+      </div>
+    </div>
+
+    <p class="q-problem">When a patient calls your clinic and nobody picks up — at peak hours, after hours, or when all lines are busy — what happens in the <strong>next 10 minutes?</strong> In most multi-location clinics, the honest answer is nothing. The patient leaves a voicemail that gets checked hours later, or does not leave one at all. They call the next clinic on their list. That clinic picks up. That clinic books the appointment. Your clinic never knew they lost it.</p>
+
+    <div class="q-assessment">
+      <div class="q-assessment-label">Honest self-assessment</div>
+      <div class="q-assessment-q">"Can you pull a report right now showing exactly how many calls your clinic missed last month, and what happened to each one?"</div>
+    </div>
+
+    <div class="q-checkbox-row">
+      <div class="q-checkbox-option yes-opt">
+        <div class="q-checkbox-box"></div>
+        <div class="q-checkbox-text"><strong>YES</strong> — We have a system that tracks every missed call and handles follow-up automatically.</div>
+      </div>
+      <div class="q-checkbox-option no-opt">
+        <div class="q-checkbox-box"></div>
+        <div class="q-checkbox-text"><strong>NO</strong> — We rely on manual effort, voicemail, or nothing at all.</div>
+      </div>
+    </div>
+
+    <div class="q-if-no">
+      <div class="q-if-no-label">If you answered NO — the diagnosis</div>
+      <p class="q-if-no-text">You have a silent revenue leak that compounds daily. At even a modest 5% missed-call rate across your locations, you are losing bookings every single hour your phones are open — and you have no visibility into how many. The revenue does not show up as a line item because you never captured it. It simply never existed in your system. Until you close this gap, you are growing with a hole in the bucket.</p>
+    </div>
+
+    <div class="q-fix">
+      <div class="q-fix-label">The AI Operating System Fix</div>
+      <div class="q-fix-content">
+        <span class="q-fix-module-tag">Module 01</span>
+        <p class="q-fix-text"><strong>Missed-Call AI Agent</strong> — the moment a call is missed, an AI voice agent calls the patient back within 60 seconds. It speaks naturally, captures the reason for calling, and books or re-routes the appointment directly into your EMR. No voicemail. No lost bookings. No staff required.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="q-footer">
+    <span class="q-footer-left">SOURCE X · Clinic Revenue Leak Audit · Confidential</span>
+    <span class="q-footer-right"><span class="q-page-num">2 / 7</span></span>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     PAGE 3 — QUESTION 2: NO-SHOW RECOVERY
+══════════════════════════════════════════════════ -->
+<div class="page q-page">
+
+  <div class="q-topband">
+    <div class="q-topband-left">
+      <span class="q-num">Question 02 of 05</span>
+      <span style="color:rgba(255,255,255,0.2);">|</span>
+      <span class="q-title-band">No-Show Recovery</span>
+    </div>
+    <div class="q-topband-right">
+      <img src="sourcex-logo.png" alt="" class="q-topband-logo">
+      <span class="q-topband-wordmark">Source X</span>
+    </div>
+  </div>
+
+  <div class="q-body">
+
+    <div class="q-stat-callout">
+      <div class="q-stat-left">
+        <div class="q-stat-amount">$9,000+</div>
+        <div class="q-stat-period">per month</div>
+      </div>
+      <div class="q-stat-right">
+        <p class="q-stat-text">At a <strong>5% no-show rate</strong> across 100 daily appointments, that is 5 empty slots per day — roughly <strong>$450 in lost revenue per day</strong>, or over $9,000 per month that is theoretically recoverable with the right same-day automated system in place.</p>
+      </div>
+    </div>
+
+    <p class="q-problem">A patient no-shows. The appointment slot is now empty. The therapist is being paid regardless. What does your clinic do in the <strong>next 30 minutes</strong> to recover that slot? For most clinics: nothing automated. Perhaps a receptionist calls once when they have time. The slot is lost. The therapist sits idle. The revenue evaporates. It happens five times a day, every day, and no one runs a report on the cumulative cost because it feels too normal to measure.</p>
+
+    <div class="q-assessment">
+      <div class="q-assessment-label">Honest self-assessment</div>
+      <div class="q-assessment-q">"Do you have a same-day automated workflow that fires the moment a patient no-shows and attempts to rebook the slot before the end of business?"</div>
+    </div>
+
+    <div class="q-checkbox-row">
+      <div class="q-checkbox-option yes-opt">
+        <div class="q-checkbox-box"></div>
+        <div class="q-checkbox-text"><strong>YES</strong> — We have an automated same-day system that recovers no-show slots before we close.</div>
+      </div>
+      <div class="q-checkbox-option no-opt">
+        <div class="q-checkbox-box"></div>
+        <div class="q-checkbox-text"><strong>NO</strong> — We rely on manual outreach or accept the empty slot as a loss.</div>
+      </div>
+    </div>
+
+    <div class="q-if-no">
+      <div class="q-if-no-label">If you answered NO — the diagnosis</div>
+      <p class="q-if-no-text">Every no-show is a recoverable event that your clinic is currently treating as a permanent loss. At industry-standard no-show rates, a 4-location clinic is giving back $9,000–$12,000 per month in recoverable revenue. The slot exists. The patient is still in your system. The only missing piece is a system that acts within minutes, not hours. Without it, you are funding therapist salaries from bookings that never existed.</p>
+    </div>
+
+    <div class="q-fix">
+      <div class="q-fix-label">The AI Operating System Fix</div>
+      <div class="q-fix-content">
+        <span class="q-fix-module-tag">Module 02</span>
+        <p class="q-fix-text"><strong>No-Show Recovery Engine</strong> — the moment a no-show is registered in your EMR, an automated sequence fires: SMS first, then voice follow-up if no response within 30 minutes. Rebook logic attempts to fill the vacated slot <strong>before end of business</strong>. Repeat no-shows trigger deposit requirements. The slot is recovered without a single manual call from your front desk.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="q-footer">
+    <span class="q-footer-left">SOURCE X · Clinic Revenue Leak Audit · Confidential</span>
+    <span class="q-footer-right"><span class="q-page-num">3 / 7</span></span>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     PAGE 4 — QUESTION 3: PATIENT REACTIVATION
+══════════════════════════════════════════════════ -->
+<div class="page q-page">
+
+  <div class="q-topband">
+    <div class="q-topband-left">
+      <span class="q-num">Question 03 of 05</span>
+      <span style="color:rgba(255,255,255,0.2);">|</span>
+      <span class="q-title-band">Patient Reactivation</span>
+    </div>
+    <div class="q-topband-right">
+      <img src="sourcex-logo.png" alt="" class="q-topband-logo">
+      <span class="q-topband-wordmark">Source X</span>
+    </div>
+  </div>
+
+  <div class="q-body">
+
+    <div class="q-stat-callout">
+      <div class="q-stat-left">
+        <div class="q-stat-amount">500–1,500</div>
+        <div class="q-stat-period">inactive patients</div>
+      </div>
+      <div class="q-stat-right">
+        <p class="q-stat-text">Most multi-location clinics have <strong>500–1,500 inactive patients</strong> (defined as no appointment in the last 60 days) in their system at any given time. With no outreach cadence, those patients are available to <strong>whoever contacts them first</strong>. Usually a competitor.</p>
+      </div>
+    </div>
+
+    <p class="q-problem">Your clinic has spent money and time acquiring every patient in your system. Many of them completed a treatment plan, had a life change, or simply drifted away. They are still in your database. They already trust your clinic. Reactivating them costs a fraction of what it costs to acquire a new patient — yet most multi-location clinics have no automated system doing this work monthly. The patients are there. The budget is already spent. The only missing piece is the outreach.</p>
+
+    <div class="q-assessment">
+      <div class="q-assessment-label">Honest self-assessment</div>
+      <div class="q-assessment-q">"Do you have an automated monthly outreach campaign running right now to patients who have not booked in 60+ days — personalized by case type, PHIPA-compliant, not a mass blast?"</div>
+    </div>
+
+    <div class="q-checkbox-row">
+      <div class="q-checkbox-option yes-opt">
+        <div class="q-checkbox-box"></div>
+        <div class="q-checkbox-text"><strong>YES</strong> — We have a monthly automated reactivation campaign segmented by patient case type running right now.</div>
+      </div>
+      <div class="q-checkbox-option no-opt">
+        <div class="q-checkbox-box"></div>
+        <div class="q-checkbox-text"><strong>NO</strong> — We do not have regular automated outreach to inactive patients.</div>
+      </div>
+    </div>
+
+    <div class="q-if-no">
+      <div class="q-if-no-label">If you answered NO — the diagnosis</div>
+      <p class="q-if-no-text">You have a database of warm, already-converted patients doing nothing. Each month without outreach is a month those patients are available to whoever reaches them first — and that clinic's reactivation cost is zero, because you already did the hard work of acquiring them. At $10,000–$25,000 per quarter in recoverable dormant-patient revenue for a 4-location clinic, this is the highest-margin gap in your entire operation.</p>
+    </div>
+
+    <div class="q-fix">
+      <div class="q-fix-label">The AI Operating System Fix</div>
+      <div class="q-fix-content">
+        <span class="q-fix-module-tag">Module 03</span>
+        <p class="q-fix-text"><strong>Patient Reactivation Engine</strong> — monthly automated outreach to every patient inactive 60+ days, <strong>segmented by case type</strong> (back, neck, post-op, MVA, general) with personalized PHIPA-compliant messaging. Not a mass blast. Relevant, timed, compliant outreach that brings dormant patients back before your competitors reach them first.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="q-footer">
+    <span class="q-footer-left">SOURCE X · Clinic Revenue Leak Audit · Confidential</span>
+    <span class="q-footer-right"><span class="q-page-num">4 / 7</span></span>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     PAGE 5 — QUESTION 4: AFTER-HOURS INTAKE
+══════════════════════════════════════════════════ -->
+<div class="page q-page">
+
+  <div class="q-topband">
+    <div class="q-topband-left">
+      <span class="q-num">Question 04 of 05</span>
+      <span style="color:rgba(255,255,255,0.2);">|</span>
+      <span class="q-title-band">After-Hours Intake</span>
+    </div>
+    <div class="q-topband-right">
+      <img src="sourcex-logo.png" alt="" class="q-topband-logo">
+      <span class="q-topband-wordmark">Source X</span>
+    </div>
+  </div>
+
+  <div class="q-body">
+
+    <div class="q-stat-callout">
+      <div class="q-stat-left">
+        <div class="q-stat-amount" style="font-size:20px; line-height:1.15;">Highest<br>Intent</div>
+        <div class="q-stat-period">goes unanswered</div>
+      </div>
+      <div class="q-stat-right">
+        <p class="q-stat-text">A prospective patient is at <strong>peak buying intent</strong> in the moment they first reach out. Research on healthcare consumer behaviour consistently shows that patients who do not get an instant response to their first inquiry have a <strong>significantly lower likelihood of converting</strong>. That first moment is the sale.</p>
+      </div>
+    </div>
+
+    <p class="q-problem">A prospective new patient visits your website at 9pm. They want to book or at least find out if your clinic can help them. There is no live chat. The phone goes to voicemail. They close the tab. They may or may not remember to call back tomorrow. They are highest-intent in that first moment. If you are not capturing them then, you are likely losing them to the next clinic that has a 24-hour intake system — and new patient acquisition cost in Ontario is $80–$200 per patient. You just let one walk.</p>
+
+    <div class="q-assessment">
+      <div class="q-assessment-label">Honest self-assessment</div>
+      <div class="q-assessment-q">"What happens when a prospective patient tries to contact your clinic at 9pm on a Wednesday? Can they get a response, begin an intake, or book an appointment instantly — without a staff member being present?"</div>
+    </div>
+
+    <div class="q-checkbox-row">
+      <div class="q-checkbox-option yes-opt">
+        <div class="q-checkbox-box"></div>
+        <div class="q-checkbox-text"><strong>YES</strong> — We have a 24/7 intake system that captures and responds to new patient inquiries automatically.</div>
+      </div>
+      <div class="q-checkbox-option no-opt">
+        <div class="q-checkbox-box"></div>
+        <div class="q-checkbox-text"><strong>NO</strong> — After-hours inquiries go to voicemail or get no response until the next business day.</div>
+      </div>
+    </div>
+
+    <div class="q-if-no">
+      <div class="q-if-no-label">If you answered NO — the diagnosis</div>
+      <p class="q-if-no-text">Your clinic's front door is closed 16 hours a day to the highest-intent patients you will ever encounter. Every evening and every weekend, prospective patients are researching, deciding, and converting — just not with you. The competitor who picks up at 9pm wins the booking. You win the voicemail. Over the course of a year, this gap is worth tens of thousands in first-visit revenue that never entered your system.</p>
+    </div>
+
+    <div class="q-fix">
+      <div class="q-fix-label">The AI Operating System Fix</div>
+      <div class="q-fix-content">
+        <span class="q-fix-module-tag">Module 01+</span>
+        <p class="q-fix-text"><strong>24/7 AI Voice + Intake Agent</strong> — the same AI agent that handles missed calls during business hours runs 24/7, capturing after-hours new patient inquiries, completing intake qualification, and booking directly into your EMR. <strong>Your clinic never sleeps.</strong> Every first-contact moment is captured, every prospective patient gets an immediate response, regardless of the hour.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="q-footer">
+    <span class="q-footer-left">SOURCE X · Clinic Revenue Leak Audit · Confidential</span>
+    <span class="q-footer-right"><span class="q-page-num">5 / 7</span></span>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     PAGE 6 — QUESTION 5: OPERATIONS VISIBILITY
+══════════════════════════════════════════════════ -->
+<div class="page q-page">
+
+  <div class="q-topband">
+    <div class="q-topband-left">
+      <span class="q-num">Question 05 of 05</span>
+      <span style="color:rgba(255,255,255,0.2);">|</span>
+      <span class="q-title-band">Operations Visibility</span>
+    </div>
+    <div class="q-topband-right">
+      <img src="sourcex-logo.png" alt="" class="q-topband-logo">
+      <span class="q-topband-wordmark">Source X</span>
+    </div>
+  </div>
+
+  <div class="q-body">
+
+    <div class="q-stat-callout">
+      <div class="q-stat-left">
+        <div class="q-stat-amount" style="font-size:18px; line-height:1.2;">Blind<br>Spot</div>
+        <div class="q-stat-period">the gap under the gaps</div>
+      </div>
+      <div class="q-stat-right">
+        <p class="q-stat-text">If you cannot <strong>measure your missed-call volume, no-show rate by location, reactivation opportunity, and booking conversion in real time</strong>, you cannot manage or improve any of the four gaps above. Most clinic owners make decisions from month-end summaries and intuition. That lag costs more than it looks.</p>
+      </div>
+    </div>
+
+    <p class="q-problem">The gap underneath all the other gaps. If you cannot see your revenue leak in real time, you cannot plug it in real time. Most multi-location clinic owners discover missed calls at the end of the month — when nothing can be recovered. They learn their no-show rate from their EMR's monthly summary — three weeks after the slots were lost. The clinics that will lead their markets in five years will be the ones that have <strong>real-time operational data and AI systems that act on it automatically</strong>. That infrastructure gap is widening every month you wait.</p>
+
+    <div class="q-assessment">
+      <div class="q-assessment-label">Honest self-assessment</div>
+      <div class="q-assessment-q">"Do you have a live dashboard showing your missed-call volume, no-show rate, recovery rate, and inactive patient count across all your locations right now — not last month's report, but right now?"</div>
+    </div>
+
+    <div class="q-checkbox-row">
+      <div class="q-checkbox-option yes-opt">
+        <div class="q-checkbox-box"></div>
+        <div class="q-checkbox-text"><strong>YES</strong> — We have a live cross-location dashboard with real-time revenue gap visibility and automated alerts.</div>
+      </div>
+      <div class="q-checkbox-option no-opt">
+        <div class="q-checkbox-box"></div>
+        <div class="q-checkbox-text"><strong>NO</strong> — We work from month-end EMR reports, spreadsheets, or gut instinct.</div>
+      </div>
+    </div>
+
+    <div class="q-if-no">
+      <div class="q-if-no-label">If you answered NO — the diagnosis</div>
+      <p class="q-if-no-text">You are managing a multi-location clinic operation without the instruments required to manage it. Every strategic decision about staffing, marketing spend, expansion, and pricing is being made with data that is weeks old and incomplete. Without real-time visibility, every other improvement initiative — hiring, training, marketing — is optimizing a system you cannot fully see. This is the foundational gap that makes all the others invisible until they compound into a crisis.</p>
+    </div>
+
+    <div class="q-fix">
+      <div class="q-fix-label">The AI Operating System Fix</div>
+      <div class="q-fix-content">
+        <span class="q-fix-module-tag">Dashboard</span>
+        <p class="q-fix-text"><strong>Custom Revenue Dashboard</strong> — every SOURCE X deployment includes a <strong>live cross-location dashboard</strong> showing missed calls recovered, no-shows rebooked, reactivations sent and converted, and total revenue attributed to the AI OS. Monthly reports delivered automatically. You stop managing from memory and start managing from data. In real time.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="q-footer">
+    <span class="q-footer-left">SOURCE X · Clinic Revenue Leak Audit · Confidential</span>
+    <span class="q-footer-right"><span class="q-page-num">6 / 7</span></span>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     PAGE 7 — RESULTS + CTA
+══════════════════════════════════════════════════ -->
+<div class="page results-page">
+
+  <div class="results-topband">
+    <div>
+      <div class="results-topband-title">Your Results — What Your Score Means</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <img src="sourcex-logo.png" alt="" class="q-topband-logo" style="mix-blend-mode:screen;">
+      <span class="results-topband-sub">Source X · getsourcex.com</span>
+    </div>
+  </div>
+
+  <div class="results-body">
+
+    <!-- Scoring table -->
+    <div>
+      <div class="scoring-section-label">Score Interpretation — Count Your "NO" Answers</div>
+      <table class="scoring-table">
+        <thead>
+          <tr>
+            <th style="width:100px;">NO Answers</th>
+            <th>Assessment</th>
+            <th>Monthly Revenue at Risk</th>
+            <th style="width:130px;">Recommended Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="score-range low">1 – 2</span></td>
+            <td>
+              <div class="score-label">Partial Gaps</div>
+              <div class="score-desc">You have some protection in place but meaningful leaks remain. One or two gaps unaddressed will cost you each month until they are closed.</div>
+            </td>
+            <td><span class="score-at-risk low">$8,000–$15,000</span></td>
+            <td><div class="score-action">Book a targeted audit call to identify the highest-priority gap.</div></td>
+          </tr>
+          <tr>
+            <td><span class="score-range mid">3</span></td>
+            <td>
+              <div class="score-label">Significant Gaps</div>
+              <div class="score-desc">Three operational gaps means your clinic is structurally bleeding revenue on multiple fronts simultaneously. This compounds — each gap makes the others harder to see.</div>
+            </td>
+            <td><span class="score-at-risk mid">$15,000–$22,000</span></td>
+            <td><div class="score-action">The full Clinic Revenue Recovery System is the correct solution.</div></td>
+          </tr>
+          <tr>
+            <td><span class="score-range high">4 – 5</span></td>
+            <td>
+              <div class="score-label">Critical Gaps — Urgent</div>
+              <div class="score-desc">Your clinic is operating without an AI layer that every competitive multi-location practice will have within 24 months. The gap is widening every week you are not closing it.</div>
+            </td>
+            <td><span class="score-at-risk high">$22,000–$30,000+</span></td>
+            <td><div class="score-action">Book your audit call today. Founding-member pricing ends at 10 clients.</div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Three modules -->
+    <div>
+      <div class="scoring-section-label">What SOURCE X Deploys — Three Modules, One Managed System</div>
+      <div class="modules-row">
+        <div class="module-mini">
+          <div class="module-mini-num">Module 01</div>
+          <div class="module-mini-name">Missed-Call AI Agent</div>
+          <div class="module-mini-desc">Calls patients back within 60 seconds of a missed call. Books directly into your EMR. Operates 24/7 including after-hours and weekends. $6,000 standalone value.</div>
+        </div>
+        <div class="module-mini">
+          <div class="module-mini-num">Module 02</div>
+          <div class="module-mini-name">No-Show Recovery Engine</div>
+          <div class="module-mini-desc">Fires the moment a no-show is registered. Same-day automated rebook via SMS + voice. Slot recovered before end of business. $3,500 standalone value.</div>
+        </div>
+        <div class="module-mini">
+          <div class="module-mini-num">Module 03</div>
+          <div class="module-mini-name">Patient Reactivation Engine</div>
+          <div class="module-mini-desc">Monthly PHIPA-compliant outreach to every patient inactive 60+ days. Segmented by case type. Brings dormant patients back before competitors reach them. $3,000 standalone value.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA Box -->
+    <div class="cta-box">
+      <div class="cta-left">
+        <div class="cta-eyebrow">Free · No Commitment · 15 Minutes</div>
+        <div class="cta-headline">Book Your Clinic Revenue<br>Gap Audit Call</div>
+        <p class="cta-sub">We calculate your exact revenue leak in real numbers before any commitment. You leave the call knowing precisely how much your clinic is losing each month and what it would take to recover it. Zero obligation.</p>
+      </div>
+      <div class="cta-right">
+        <a href="https://zeeg.me/vatsalsourcex/15-minute-dollar10k-clinic-fix-roi-snapshot-call" class="cta-btn-primary">Book Your Free Call</a>
+        <a href="https://getsourcex.com" class="cta-btn-secondary">getsourcex.com</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="results-footer">
+    <div class="results-footer-logo-block">
+      <img src="sourcex-logo.png" alt="" class="results-footer-logo">
+      <span class="results-footer-wordmark">Source X · AI Operations for Ontario Healthcare</span>
+    </div>
+    <div class="results-footer-terms">
+      <strong>60-Day ROI Guarantee</strong> — if the system doesn't recover the setup fee in 60 days, full refund + 30 days free &nbsp;·&nbsp; <strong>Founding-Member Pricing</strong> — $7,500 setup + $1,500/mo — locked for first 10 clinics only &nbsp;·&nbsp; getsourcex.com
+    </div>
+  </div>
+
+</div>
+
+</div><!-- /doc-wrap -->
+</body>
+</html>

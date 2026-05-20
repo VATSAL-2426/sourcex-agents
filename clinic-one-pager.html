@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Clinic Revenue Recovery System — SOURCE X</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --black: #000000;
+      --white: #FFFFFF;
+      --gray-100: #F5F5F5;
+      --gray-400: #999999;
+      --gray-600: #666666;
+      --gray-800: #1A1A1A;
+      --gray-900: #111111;
+      --border: rgba(255,255,255,0.08);
+      --border-bright: rgba(255,255,255,0.16);
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { page-break-after: avoid; }
+    }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 64px 48px;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 72px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-block {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+    }
+
+    .logo-text {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+
+    .header-badge {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gray-400);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      border-radius: 2px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      margin-bottom: 80px;
+    }
+
+    .hero-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gray-400);
+      margin-bottom: 20px;
+    }
+
+    .hero-title {
+      font-size: clamp(36px, 5vw, 60px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.0;
+      color: var(--white);
+      margin-bottom: 28px;
+    }
+
+    .hero-title span {
+      display: block;
+    }
+
+    .hero-subtitle {
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--gray-400);
+      max-width: 600px;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .hero-subtitle strong {
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    .hero-stat-row {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .hero-stat {
+      border-left: 2px solid var(--white);
+      padding-left: 16px;
+    }
+
+    .hero-stat-num {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .hero-stat-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--gray-400);
+      margin-top: 4px;
+      letter-spacing: 0.02em;
+    }
+
+    /* ── SECTION LABELS ── */
+    .section {
+      margin-bottom: 72px;
+    }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── LEAK GRID ── */
+    .leak-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .leak-card {
+      background: var(--black);
+      padding: 32px 28px;
+    }
+
+    .leak-number {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      margin-bottom: 16px;
+    }
+
+    .leak-amount {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .leak-period {
+      font-size: 12px;
+      color: var(--gray-400);
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+
+    .leak-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .leak-desc {
+      font-size: 13px;
+      color: var(--gray-400);
+      line-height: 1.5;
+    }
+
+    /* ── MODULE BLOCKS ── */
+    .module-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .module-item {
+      background: var(--black);
+      padding: 36px 36px;
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .module-num {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      padding-top: 4px;
+    }
+
+    .module-content {}
+
+    .module-name {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .module-desc {
+      font-size: 14px;
+      color: var(--gray-400);
+      line-height: 1.6;
+      max-width: 520px;
+    }
+
+    .module-value {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .module-value-num {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.01em;
+    }
+
+    .module-value-label {
+      font-size: 10px;
+      color: var(--gray-600);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* ── VALUE STACK ── */
+    .stack-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .stack-table tr {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stack-table tr:first-child {
+      border-top: 1px solid var(--border);
+    }
+
+    .stack-table td {
+      padding: 16px 4px;
+      font-size: 14px;
+    }
+
+    .stack-table td:first-child {
+      color: var(--gray-400);
+      width: 60%;
+    }
+
+    .stack-table td:last-child {
+      color: var(--white);
+      font-weight: 600;
+      text-align: right;
+      font-size: 14px;
+    }
+
+    .stack-total {
+      background: var(--gray-900);
+      border: 1px solid var(--border-bright) !important;
+    }
+
+    .stack-total td {
+      padding: 20px 16px !important;
+    }
+
+    .stack-total td:first-child {
+      font-size: 13px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-400) !important;
+    }
+
+    .stack-total td:last-child {
+      font-size: 22px !important;
+      font-weight: 900 !important;
+      letter-spacing: -0.02em;
+      color: var(--white) !important;
+    }
+
+    /* ── PRICING ── */
+    .pricing-block {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .pricing-cell {
+      background: var(--black);
+      padding: 36px 32px;
+    }
+
+    .pricing-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      margin-bottom: 16px;
+    }
+
+    .pricing-amount {
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .pricing-sub {
+      font-size: 13px;
+      color: var(--gray-400);
+      line-height: 1.5;
+    }
+
+    .pricing-math {
+      background: var(--gray-900);
+      border: 1px solid var(--border);
+      padding: 20px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pricing-math-label {
+      font-size: 12px;
+      color: var(--gray-400);
+      font-weight: 500;
+    }
+
+    .pricing-math-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    /* ── GUARANTEE ── */
+    .guarantee-block {
+      border: 1px solid var(--border-bright);
+      padding: 40px 40px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    .guarantee-icon {
+      font-size: 36px;
+      line-height: 1;
+    }
+
+    .guarantee-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+
+    .guarantee-text {
+      font-size: 14px;
+      color: var(--gray-400);
+      line-height: 1.7;
+      max-width: 600px;
+    }
+
+    .guarantee-text strong {
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    /* ── THREE PROMISES ── */
+    .promises {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .promise-item {
+      background: var(--black);
+      padding: 28px 24px;
+    }
+
+    .promise-num {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      margin-bottom: 12px;
+    }
+
+    .promise-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.4;
+    }
+
+    /* ── CTA ── */
+    .cta-block {
+      margin-top: 80px;
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    .cta-left {}
+
+    .cta-headline {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .cta-sub {
+      font-size: 14px;
+      color: var(--gray-400);
+    }
+
+    .cta-button {
+      background: var(--white);
+      color: var(--black);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 16px 32px;
+      text-decoration: none;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .footer-logo {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+    }
+
+    .footer-name {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+    }
+
+    .footer-right {
+      font-size: 11px;
+      color: var(--gray-600);
+      text-align: right;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 700px) {
+      .page { padding: 40px 24px; }
+      .leak-grid { grid-template-columns: 1fr; }
+      .module-item { grid-template-columns: 1fr; }
+      .module-value { text-align: left; }
+      .pricing-block { grid-template-columns: 1fr; }
+      .promises { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="logo-block">
+        <img src="sourcex-logo.png" alt="SOURCE X" class="logo-img">
+        <span class="logo-text">Source X</span>
+      </div>
+      <span class="header-badge">Ontario Physiotherapy &amp; Chiropractic Clinics · 2–6 Locations</span>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+      <p class="hero-label">Flagship Offer · Ontario Healthcare Clinics</p>
+      <h1 class="hero-title">
+        <span>The Clinic Revenue</span>
+        <span>Recovery System</span>
+      </h1>
+      <p class="hero-subtitle">
+        A fully managed AI operating system that closes the three revenue gaps every multi-location clinic has — <strong>and never thinks about.</strong>
+      </p>
+      <div class="hero-stat-row">
+        <div class="hero-stat">
+          <div class="hero-stat-num">$8K–$25K</div>
+          <div class="hero-stat-label">Monthly revenue being lost silently</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">60 Days</div>
+          <div class="hero-stat-label">To measurable ROI, guaranteed</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">21 Days</div>
+          <div class="hero-stat-label">From contract to system live</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE THREE LEAKS -->
+    <section class="section">
+      <div class="section-label">The Three Revenue Leaks</div>
+      <div class="leak-grid">
+        <div class="leak-card">
+          <div class="leak-number">Leak 01</div>
+          <div class="leak-amount">$15K+</div>
+          <div class="leak-period">per month</div>
+          <div class="leak-name">Missed Calls</div>
+          <div class="leak-desc">At 10% missed-call rate with 60 daily inbound calls, 6 patients per day leave with zero follow-up. At $120/visit, that's $720 per day — $15,000 per month — gone through the phone.</div>
+        </div>
+        <div class="leak-card">
+          <div class="leak-number">Leak 02</div>
+          <div class="leak-amount">$9K+</div>
+          <div class="leak-period">per month</div>
+          <div class="leak-name">No-Shows</div>
+          <div class="leak-desc">A 5% no-show rate across 100 daily appointments is 5 empty slots — $450 in lost revenue per day. The therapist gets paid. The slot is wasted. No system fires to recover it.</div>
+        </div>
+        <div class="leak-card">
+          <div class="leak-number">Leak 03</div>
+          <div class="leak-amount">$25K+</div>
+          <div class="leak-period">per quarter</div>
+          <div class="leak-name">Dormant Patients</div>
+          <div class="leak-desc">500–1,500 inactive patients in the average multi-location clinic's database. Already acquired. Already trust you. Going to whoever contacts them first. Usually a competitor.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE THREE MODULES -->
+    <section class="section">
+      <div class="section-label">The Three Modules</div>
+      <div class="module-list">
+        <div class="module-item">
+          <div class="module-num">01</div>
+          <div class="module-content">
+            <div class="module-name">Missed-Call AI Agent</div>
+            <div class="module-desc">The moment a call is missed, an AI voice agent calls the patient back within 60 seconds. It speaks naturally, captures the reason for calling, and books or re-routes the appointment directly into your EMR. No voicemail. No lost revenue.</div>
+          </div>
+          <div class="module-value">
+            <div class="module-value-num">$6,000</div>
+            <div class="module-value-label">standalone value</div>
+          </div>
+        </div>
+        <div class="module-item">
+          <div class="module-num">02</div>
+          <div class="module-content">
+            <div class="module-name">No-Show Recovery Engine</div>
+            <div class="module-desc">The moment a patient no-shows, an automated sequence fires within minutes. SMS + voice follow-up to rebook the slot same-day. Deposit trigger logic for repeat no-shows. Empty slots recovered before the business day ends.</div>
+          </div>
+          <div class="module-value">
+            <div class="module-value-num">$3,500</div>
+            <div class="module-value-label">standalone value</div>
+          </div>
+        </div>
+        <div class="module-item">
+          <div class="module-num">03</div>
+          <div class="module-content">
+            <div class="module-name">Patient Reactivation Engine</div>
+            <div class="module-desc">Monthly outreach campaign to every patient inactive for 60+ days. Personalized by case type — back, neck, post-op, MVA. PHIPA-compliant by design, not as an afterthought. Dormant patients become booked appointments without a single manual call from your staff.</div>
+          </div>
+          <div class="module-value">
+            <div class="module-value-num">$3,000</div>
+            <div class="module-value-label">standalone value</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VALUE STACK -->
+    <section class="section">
+      <div class="section-label">Full Offer Stack</div>
+      <table class="stack-table">
+        <tbody>
+          <tr>
+            <td>AI Voice Agent for missed-call recovery (24/7)</td>
+            <td>$6,000</td>
+          </tr>
+          <tr>
+            <td>Smart no-show reduction sequence (SMS + voice)</td>
+            <td>$3,500</td>
+          </tr>
+          <tr>
+            <td>Dormant patient reactivation campaigns</td>
+            <td>$3,000</td>
+          </tr>
+          <tr>
+            <td>EMR integration + PHIPA compliance setup</td>
+            <td>$4,000</td>
+          </tr>
+          <tr>
+            <td>Custom dashboard with monthly ROI reporting</td>
+            <td>$1,500</td>
+          </tr>
+          <tr>
+            <td>90-day implementation support and tuning</td>
+            <td>$2,500</td>
+          </tr>
+          <tr>
+            <td>Staff onboarding + 1-page playbooks</td>
+            <td>$1,000</td>
+          </tr>
+          <tr class="stack-total">
+            <td>Total Stack Value</td>
+            <td>$21,500</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- PRICING -->
+    <section class="section">
+      <div class="section-label">Investment</div>
+      <div class="pricing-block">
+        <div class="pricing-cell">
+          <div class="pricing-label">Setup Fee · One-Time</div>
+          <div class="pricing-amount">$7,500</div>
+          <div class="pricing-sub">Full system build, EMR integration, PHIPA compliance, staff onboarding. Month 1 retainer included.</div>
+        </div>
+        <div class="pricing-cell">
+          <div class="pricing-label">Monthly Retainer · From Month 2</div>
+          <div class="pricing-amount">$1,500</div>
+          <div class="pricing-sub">Fully managed. Ongoing optimization, monthly ROI reporting, edge case handling, system tuning.</div>
+        </div>
+      </div>
+      <div class="pricing-math">
+        <span class="pricing-math-label">Year-one total value per client</span>
+        <span class="pricing-math-value">$7,500 + ($1,500 × 11) = $24,000 · Stack anchors at $21,500 — system pays for itself in recovered bookings alone.</span>
+      </div>
+    </section>
+
+    <!-- GUARANTEE -->
+    <section class="section">
+      <div class="section-label">The Guarantee</div>
+      <div class="guarantee-block">
+        <div class="guarantee-icon">◈</div>
+        <div>
+          <div class="guarantee-title">60-Day ROI Guarantee</div>
+          <div class="guarantee-text">
+            If the system does not recover at least the equivalent of the <strong>$7,500 setup fee in measurable booked revenue</strong> within 60 days of going live — we refund the setup fee in full and run the system for an additional <strong>30 days at no cost</strong>. You keep everything that was built. We carry the risk. You review the results.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- THREE PROMISES -->
+    <section class="section">
+      <div class="section-label">Three Core Promises</div>
+      <div class="promises">
+        <div class="promise-item">
+          <div class="promise-num">Promise 01</div>
+          <div class="promise-text">Recover missed revenue within 60 days — guaranteed.</div>
+        </div>
+        <div class="promise-item">
+          <div class="promise-num">Promise 02</div>
+          <div class="promise-text">Zero PHIPA risk. Every system is compliant by design, not as an afterthought.</div>
+        </div>
+        <div class="promise-item">
+          <div class="promise-num">Promise 03</div>
+          <div class="promise-text">Done for you, not taught to you. We build it, run it, and report on it. You do not touch it.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY SOURCE X -->
+    <section class="section">
+      <div class="section-label">Why SOURCE X</div>
+      <div class="promises">
+        <div class="promise-item">
+          <div class="promise-num">Operator Credibility</div>
+          <div class="promise-text">The founder works inside a 5-location physio clinic in Etobicoke daily. Every other AI agency reads about clinics in case studies. We operate inside one.</div>
+        </div>
+        <div class="promise-item">
+          <div class="promise-num">Live Case Study</div>
+          <div class="promise-text">Our Etobicoke deployment is live and instrumented. Real missed calls recovered, real no-shows reduced, real revenue numbers — shown on every audit call.</div>
+        </div>
+        <div class="promise-item">
+          <div class="promise-num">PHIPA Fluency</div>
+          <div class="promise-text">Consent flows, audit trails, data residency — mapped in detail for Juvonno and Jane. Competitors will spend 4–6 months catching up. We are already compliant.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <div class="cta-block">
+      <div class="cta-left">
+        <div class="cta-headline">Book Your Free Clinic Revenue Audit</div>
+        <div class="cta-sub">20-minute call. We calculate your exact revenue leak — in real numbers — before any commitment. Founding-member pricing ($7,500 setup) ends at 10 clients.</div>
+      </div>
+      <a href="https://zeeg.me/vatsalsourcex/15-minute-dollar10k-clinic-fix-roi-snapshot-call" class="cta-button">Book Free Audit Call</a>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-left">
+        <img src="sourcex-logo.png" alt="SOURCE X" class="footer-logo">
+        <span class="footer-name">Source X · AI Operations for Ontario Healthcare</span>
+      </div>
+      <div class="footer-right">
+        getsourcex.com<br>
+        workwithsourcex@gmail.com
+      </div>
+    </footer>
+
+  </div>
+</body>
+</html>
