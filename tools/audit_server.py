@@ -25,6 +25,7 @@ FROM_EMAIL        = os.environ.get("FROM_EMAIL", "workwithsourcex@gmail.com")
 FROM_NAME         = os.environ.get("FROM_NAME", "Vatsal | SOURCE X")
 BOOKING_LINK      = "https://zeeg.me/vatsalsourcex/15-minute-dollar10k-clinic-fix-roi-snapshot-call"
 SOURCEX_SITE      = "https://getsourcex.com"
+LOGO_URL          = "https://sourcex-audit-server.onrender.com/static/sourcex-logo.png"
 NOTIFY_EMAIL      = os.environ.get("NOTIFY_EMAIL", FROM_EMAIL)
 
 app = Flask(__name__)
@@ -125,11 +126,13 @@ def send_audit_email(prospect, nums):
   <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
 
     <!-- HEADER -->
-    <tr><td style="background:#1E3A8A;padding:28px 40px;">
+    <tr><td style="background:#1E3A8A;padding:20px 40px;">
       <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
-          <td style="font-size:13px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.9);">SOURCE X</td>
-          <td align="right" style="font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:0.1em;text-transform:uppercase;">Complimentary · {today}</td>
+          <td style="vertical-align:middle;">
+            <img src="{LOGO_URL}" alt="SOURCE X" width="52" height="52" style="display:block;border:0;outline:none;">
+          </td>
+          <td align="right" style="vertical-align:middle;font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:0.1em;text-transform:uppercase;">Complimentary · {today}</td>
         </tr>
       </table>
     </td></tr>
@@ -430,6 +433,7 @@ FORM_HTML = """<!DOCTYPE html>
 <body>
 
 <div class="hero">
+  <div style="margin-bottom:18px;"><img src="/static/sourcex-logo.png" alt="SOURCE X" style="width:72px;height:72px;object-fit:contain;display:inline-block;"></div>
   <div class="hero-logo">SOURCE X · AI Operations for Ontario Healthcare</div>
   <div class="hero-badge">Complimentary · No Commitment · Delivered in 24–48 Hours</div>
   <h1 class="hero-h1">How Much Is Your Clinic<br><em>Actually</em> Losing?</h1>
