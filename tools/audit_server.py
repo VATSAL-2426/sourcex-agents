@@ -126,32 +126,32 @@ def send_audit_email(prospect, nums):
       <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
           <td style="font-size:13px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.9);">SOURCE X</td>
-          <td align="right" style="font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:0.1em;text-transform:uppercase;">Confidential · {today}</td>
+          <td align="right" style="font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:0.1em;text-transform:uppercase;">Complimentary · {today}</td>
         </tr>
       </table>
     </td></tr>
 
     <!-- HERO -->
     <tr><td style="background:#1e2f6a;padding:40px 40px 32px;">
-      <p style="margin:0 0 12px;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#93C5FD;">Revenue Leak Audit — Prepared for {owner}</p>
-      <h1 style="margin:0 0 16px;font-size:26px;font-weight:900;color:#FFFFFF;line-height:1.15;">How Much Is {clinic}<br>Losing Every Month?</h1>
-      <p style="margin:0 0 28px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.65;">
-        Based on your clinic profile — {locs} location{'s' if int(locs)>1 else ''} in {city}, running {emr} — here is your personalized revenue leak estimate across the three gaps every multi-location Ontario clinic has.
+      <p style="margin:0 0 12px;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#93C5FD;">Complimentary Revenue Audit — Prepared for {owner}</p>
+      <h1 style="margin:0 0 16px;font-size:26px;font-weight:900;color:#FFFFFF;line-height:1.15;">Here's What We Found<br>When We Ran {clinic}'s Numbers.</h1>
+      <p style="margin:0 0 24px;font-size:13px;color:rgba(255,255,255,0.75);line-height:1.7;">
+        {owner}, I ran your clinic profile — {locs} location{'s' if int(locs)>1 else ''} in {city}, running {emr} — through the same revenue model we use across every Ontario multi-location practice we work with. What came back is worth your full attention. Three gaps. Real numbers. Specific to you.
       </p>
       <!-- Top stat row -->
       <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid rgba(255,255,255,0.12);">
         <tr>
           <td align="center" style="padding:16px;border-right:1px solid rgba(255,255,255,0.12);">
             <div style="font-size:22px;font-weight:900;color:#FCA5A5;margin-bottom:4px;">{nums['total_month']}</div>
-            <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#93C5FD;">Monthly Revenue at Risk</div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#93C5FD;">Left on the Table / Month</div>
           </td>
           <td align="center" style="padding:16px;border-right:1px solid rgba(255,255,255,0.12);">
-            <div style="font-size:22px;font-weight:900;color:#FFFFFF;margin-bottom:4px;">{nums['payback_days']}d</div>
-            <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#93C5FD;">Est. Payback Period</div>
+            <div style="font-size:22px;font-weight:900;color:#FFFFFF;margin-bottom:4px;">{nums['total_year']}</div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#93C5FD;">Annual Revenue Gap</div>
           </td>
           <td align="center" style="padding:16px;">
-            <div style="font-size:22px;font-weight:900;color:#FFFFFF;margin-bottom:4px;">{nums['roi_multiple']}</div>
-            <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#93C5FD;">Estimated Year-1 ROI</div>
+            <div style="font-size:22px;font-weight:900;color:#86EFAC;margin-bottom:4px;">3 Gaps</div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#93C5FD;">Every one is fixable</div>
           </td>
         </tr>
       </table>
@@ -160,18 +160,16 @@ def send_audit_email(prospect, nums):
     <!-- GAP 1: MISSED CALLS -->
     <tr><td style="background:#FFFFFF;padding:32px 40px 24px;border-left:4px solid #DC2626;">
       <p style="margin:0 0 6px;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#DC2626;">Revenue Gap 01 — Missed Inbound Calls</p>
-      <h2 style="margin:0 0 12px;font-size:18px;font-weight:900;color:#0F172A;line-height:1.2;">{clinic} is missing an estimated <span style="color:#DC2626;">{nums['missed_day']} calls per day.</span></h2>
-      <p style="margin:0 0 20px;font-size:12px;color:#475569;line-height:1.65;">
-        With {nums['daily_calls']} daily inbound calls at a 10% missed-call rate, approximately {nums['missed_day']} calls go unanswered each day.
-        At a 35% conversion rate for callers reached within 60 seconds, that is {nums['lost_bkgs_day']} lost bookings per day
-        — <strong style="color:#0F172A;">{nums['missed_month']} per month</strong> in first-visit revenue that never enters your system.
+      <h2 style="margin:0 0 12px;font-size:18px;font-weight:900;color:#0F172A;line-height:1.2;">Most owners assume their front desk gets to every call.<br><span style="color:#DC2626;">The data says otherwise.</span></h2>
+      <p style="margin:0 0 20px;font-size:12px;color:#475569;line-height:1.7;">
+        At {nums['daily_calls']} daily inbound calls, Ontario clinics your size miss roughly <strong style="color:#0F172A;">{nums['missed_day']} calls every single day</strong> — that's not a front desk problem, it's a volume problem. Most of those callers don't leave voicemails. They Google the next clinic and book there. At a 35% booking rate for calls answered within 60 seconds, that's <strong style="color:#0F172A;">{nums['lost_bkgs_day']} lost appointments per day</strong> that never touch your {emr} system.
       </p>
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#FFF1F2;border:1px solid #FFE4E6;">
         <tr>
           <td style="padding:16px 20px;">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#991B1B;margin-bottom:4px;">Missed Calls · Monthly Cost</div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#991B1B;margin-bottom:4px;">What This Gap Costs {clinic} Each Month</div>
             <div style="font-size:28px;font-weight:900;color:#991B1B;">{nums['missed_month']}</div>
-            <div style="font-size:10px;color:#7F1D1D;margin-top:4px;">First-visit revenue only — excludes follow-up visits and referrals</div>
+            <div style="font-size:10px;color:#7F1D1D;margin-top:4px;">First-visit revenue only — doesn't count follow-up visits, referrals, or lifetime patient value</div>
           </td>
         </tr>
       </table>
@@ -182,18 +180,16 @@ def send_audit_email(prospect, nums):
     <!-- GAP 2: NO-SHOWS -->
     <tr><td style="background:#FFFFFF;padding:24px 40px;border-left:4px solid #D97706;">
       <p style="margin:0 0 6px;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#D97706;">Revenue Gap 02 — No-Show Recovery</p>
-      <h2 style="margin:0 0 12px;font-size:18px;font-weight:900;color:#0F172A;line-height:1.2;">An estimated <span style="color:#D97706;">{nums['noshows_day']} slots go empty</span> every day without automated recovery.</h2>
-      <p style="margin:0 0 20px;font-size:12px;color:#475569;line-height:1.65;">
-        At a 10% no-show rate across {nums['appts_day']} daily appointments, {nums['noshows_day']} slots are lost each day.
-        Research shows 30% are recoverable the same day with automation that fires within 15 minutes of registration.
-        That is {nums['recover_day']} recovered slots per day — <strong style="color:#0F172A;">{nums['noshows_month']} per month</strong> currently treated as permanent loss.
+      <h2 style="margin:0 0 12px;font-size:18px;font-weight:900;color:#0F172A;line-height:1.2;">A no-show isn't just a missed appointment.<br><span style="color:#D97706;">It's a slot you already paid staff to cover.</span></h2>
+      <p style="margin:0 0 20px;font-size:12px;color:#475569;line-height:1.7;">
+        Across {nums['appts_day']} daily appointments, a standard 10% no-show rate means <strong style="color:#0F172A;">{nums['noshows_day']} chairs sit empty every day</strong>. The part most clinics don't know: 30% of those patients are reachable and willing to rebook — if you contact them within 15 minutes of their missed slot. Without automation, that window closes every time. With it, you recover <strong style="color:#0F172A;">{nums['recover_day']} appointments per day</strong> that would otherwise be written off.
       </p>
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#FFFBEB;border:1px solid #FEF3C7;">
         <tr>
           <td style="padding:16px 20px;">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#92400E;margin-bottom:4px;">No-Shows · Recoverable Monthly</div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#92400E;margin-bottom:4px;">Recoverable Monthly — No-Shows</div>
             <div style="font-size:28px;font-weight:900;color:#92400E;">{nums['noshows_month']}</div>
-            <div style="font-size:10px;color:#78350F;margin-top:4px;">With same-day automated SMS + voice rebook sequences</div>
+            <div style="font-size:10px;color:#78350F;margin-top:4px;">Currently treated as permanent loss — recoverable with same-day automated outreach</div>
           </td>
         </tr>
       </table>
@@ -204,67 +200,70 @@ def send_audit_email(prospect, nums):
     <!-- GAP 3: REACTIVATION -->
     <tr><td style="background:#FFFFFF;padding:24px 40px 32px;border-left:4px solid #1E3A8A;">
       <p style="margin:0 0 6px;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#1E3A8A;">Revenue Gap 03 — Dormant Patient Reactivation</p>
-      <h2 style="margin:0 0 12px;font-size:18px;font-weight:900;color:#0F172A;line-height:1.2;"><span style="color:#1E3A8A;">{nums['dormant']} patients</span> in your database haven't returned in 90+ days.</h2>
-      <p style="margin:0 0 20px;font-size:12px;color:#475569;line-height:1.65;">
-        These are patients {clinic} already acquired and treated. Re-acquiring them costs nothing.
-        A PHIPA-compliant quarterly outreach campaign converts ~15% back to active — that is {nums['reactivatable']} patients per campaign,
-        worth <strong style="color:#0F172A;">{nums['reactiv_month']} per month</strong> on a rolling basis.
+      <h2 style="margin:0 0 12px;font-size:18px;font-weight:900;color:#0F172A;line-height:1.2;">You already did the hard work acquiring these patients.<br><span style="color:#1E3A8A;">Reactivating them costs almost nothing.</span></h2>
+      <p style="margin:0 0 20px;font-size:12px;color:#475569;line-height:1.7;">
+        <strong style="color:#0F172A;">{nums['dormant']} patients</strong> in your database haven't returned in 90+ days. They didn't leave because they were unhappy — life got busy, they forgot, nobody followed up. A PHIPA-compliant quarterly outreach sequence converts ~15% back to active in a single campaign — that's <strong style="color:#0F172A;">{nums['reactivatable']} patients per quarter</strong>, each averaging multiple return visits. This is the highest-margin revenue gap of the three because the acquisition cost is zero.
       </p>
       <!-- EMR note -->
-      <table width="100%" cellpadding="0" cellspacing="0" style="background:#DBEAFE;border-left:3px solid #1E3A8A;margin-bottom:16px;">
-        <tr><td style="padding:12px 16px;">
-          <div style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#1E3A8A;margin-bottom:4px;">EMR Note — {emr}</div>
-          <div style="font-size:10px;color:#1e2f6a;line-height:1.55;">{emr_note}</div>
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#DBEAFE;border-left:3px solid #1E3A8A;margin-bottom:20px;">
+        <tr><td style="padding:14px 18px;">
+          <div style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#1E3A8A;margin-bottom:5px;">Your EMR — {emr}</div>
+          <div style="font-size:11px;color:#1e2f6a;line-height:1.6;">{emr_note}</div>
         </td></tr>
+      </table>
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#EFF6FF;border:1px solid #DBEAFE;">
+        <tr>
+          <td style="padding:16px 20px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#1E3A8A;margin-bottom:4px;">Reactivation Revenue — Rolling Monthly</div>
+            <div style="font-size:28px;font-weight:900;color:#1E3A8A;">{nums['reactiv_month']}</div>
+            <div style="font-size:10px;color:#1e40af;margin-top:4px;">From patients already in your database — acquisition cost: zero</div>
+          </td>
+        </tr>
       </table>
     </td></tr>
 
     <!-- TOTAL SUMMARY -->
-    <tr><td style="background:#0F172A;padding:28px 40px;">
+    <tr><td style="background:#0F172A;padding:32px 40px;">
+      <div style="font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:10px;">Combined Monthly Revenue Gap — {clinic}</div>
       <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
-          <td>
-            <div style="font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;">Total Monthly Revenue at Risk — {clinic}</div>
-            <div style="font-size:32px;font-weight:900;color:#FCA5A5;">{nums['total_month']}/month</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:4px;">
+          <td style="vertical-align:top;">
+            <div style="font-size:36px;font-weight:900;color:#FCA5A5;line-height:1;">{nums['total_month']}<span style="font-size:16px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:4px;">/month</span></div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:8px;line-height:1.6;">
               Missed calls {nums['missed_month']} &nbsp;·&nbsp; No-shows {nums['noshows_month']} &nbsp;·&nbsp; Reactivation {nums['reactiv_month']}
             </div>
           </td>
-          <td align="right" style="padding-left:20px;">
-            <div style="font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;">Annual Projection</div>
-            <div style="font-size:22px;font-weight:900;color:#86EFAC;">{nums['total_year']}/year</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:4px;">Conservative estimate</div>
+          <td align="right" style="padding-left:24px;vertical-align:top;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:6px;">Over 12 Months</div>
+            <div style="font-size:24px;font-weight:900;color:#86EFAC;">{nums['total_year']}</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.3);margin-top:4px;">Conservative baseline estimate</div>
           </td>
         </tr>
       </table>
     </td></tr>
 
-    <!-- GUARANTEE -->
-    <tr><td style="background:#F0FDF4;padding:20px 40px;border:1px solid #DCFCE7;">
-      <table cellpadding="0" cellspacing="0">
-        <tr>
-          <td style="font-size:18px;color:#16A34A;padding-right:12px;vertical-align:top;">✓</td>
-          <td style="font-size:11px;color:#166534;line-height:1.6;">
-            <strong>60-Day ROI Guarantee.</strong> If the system doesn't recover at least the full setup fee in measurable booked revenue within 60 days of go-live, SOURCE X refunds it in full and runs the system another 30 days at no cost.
-          </td>
-        </tr>
-      </table>
+    <!-- INSIGHT BAR -->
+    <tr><td style="background:#F8FAFF;border:1px solid #E2E8F0;padding:24px 40px;">
+      <p style="margin:0;font-size:12px;color:#334155;line-height:1.75;">
+        <strong style="color:#1E3A8A;">{owner}, here's the honest truth:</strong> every clinic on this list is leaking revenue across these same three gaps. The ones closing the gap aren't working harder — they've automated the parts where patients fall through. This audit exists to show you exactly where that's happening at {clinic}, with your actual numbers. What you do with it is entirely up to you.
+      </p>
     </td></tr>
 
     <!-- CTA -->
-    <tr><td style="background:#1E3A8A;padding:36px 40px;">
-      <p style="margin:0 0 6px;font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#93C5FD;">Free · No Commitment · 20 Minutes</p>
-      <h2 style="margin:0 0 12px;font-size:20px;font-weight:900;color:#FFFFFF;line-height:1.2;">Book Your Clinic Revenue Gap Audit Call</h2>
-      <p style="margin:0 0 24px;font-size:12px;color:rgba(255,255,255,0.7);line-height:1.65;">
-        Walk through these numbers together. Vatsal will confirm which gaps are highest-priority for {clinic} specifically and show you the Etobicoke case study — a live deployment with real numbers. Zero obligation.
+    <tr><td style="background:#1E3A8A;padding:40px 40px;">
+      <p style="margin:0 0 8px;font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#93C5FD;">Free · No Pitch · 20 Minutes</p>
+      <h2 style="margin:0 0 14px;font-size:22px;font-weight:900;color:#FFFFFF;line-height:1.2;">Want to Walk Through<br>These Numbers Together?</h2>
+      <p style="margin:0 0 28px;font-size:12px;color:rgba(255,255,255,0.72);line-height:1.75;">
+        This audit runs the numbers. The 20-minute call is where we figure out which gap is costing {clinic} the most right now — and what closing it would actually look like given your specific setup, staff count, and how your {emr} workflows run today. No pitch. No deck. Just a clear picture of where the money is going and what it would take to stop it.
       </p>
       <table cellpadding="0" cellspacing="0">
         <tr>
-          <td style="background:#FFFFFF;padding:14px 28px;">
-            <a href="{BOOKING_LINK}" style="font-size:11px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#1E3A8A;text-decoration:none;">Book Your Free Audit Call →</a>
+          <td style="background:#FFFFFF;padding:15px 32px;">
+            <a href="{BOOKING_LINK}" style="font-size:11px;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;color:#1E3A8A;text-decoration:none;">Schedule Your Free 20-Minute Call →</a>
           </td>
         </tr>
       </table>
+      <p style="margin:20px 0 0;font-size:10px;color:rgba(255,255,255,0.4);line-height:1.6;">No obligation. If it's not a fit, I'll tell you that in the first five minutes and you'll still leave with a clearer picture of your clinic's numbers.</p>
     </td></tr>
 
     <!-- FOOTER -->
@@ -272,7 +271,7 @@ def send_audit_email(prospect, nums):
       <p style="margin:0;font-size:10px;color:rgba(255,255,255,0.3);line-height:1.7;">
         SOURCE X · AI Operations for Ontario Healthcare Clinics<br>
         {SOURCEX_SITE} · info@getsourcex.com<br>
-        Confidential — Prepared exclusively for {prospect['owner_name']} · {clinic}
+        Prepared exclusively for {prospect['owner_name']} · {clinic} · {city}
       </p>
     </td></tr>
 
@@ -283,40 +282,49 @@ def send_audit_email(prospect, nums):
 </body>
 </html>"""
 
-    plain = f"""SOURCE X — Revenue Leak Audit for {clinic}
-Prepared for: {prospect['owner_name']} | {today}
+    plain = f"""Hi {owner},
 
-SUMMARY
-Monthly revenue at risk: {nums['total_month']}
-Annual projection: {nums['total_year']}
-Estimated payback: {nums['payback_days']} days
+Your complimentary revenue audit for {clinic} is ready. I ran your clinic profile through the same model we use across Ontario multi-location practices. Here's what the numbers showed.
 
-GAP 1 — MISSED CALLS: {nums['missed_month']}/month
-{nums['missed_day']} missed calls/day × {WORKING_DAYS_MONTH} working days × 35% conversion × {nums['avg_fee']} avg fee
+─────────────────────────────────
+COMBINED MONTHLY REVENUE GAP: {nums['total_month']}
+Over 12 months: {nums['total_year']}
+─────────────────────────────────
+
+GAP 1 — MISSED INBOUND CALLS: {nums['missed_month']}/month
+
+Most owners assume their front desk gets to every call. At {nums['daily_calls']} daily inbound calls, roughly {nums['missed_day']} go unanswered every day. Those callers don't leave voicemails — they book elsewhere. At a 35% conversion rate, that's {nums['lost_bkgs_day']} lost appointments per day that never touch your {emr} system. First-visit revenue only — doesn't count follow-ups or lifetime value.
 
 GAP 2 — NO-SHOW RECOVERY: {nums['noshows_month']}/month
-{nums['recover_day']} recoverable slots/day with same-day automated rebook
 
-GAP 3 — DORMANT PATIENTS: {nums['reactiv_month']}/month
-{nums['dormant']} patients inactive 90+ days · {nums['reactivatable']} reactivatable per campaign
+A no-show isn't just a missed appointment — it's a slot you already paid staff to cover. Across {nums['appts_day']} daily appointments, {nums['noshows_day']} chairs go dark every day. 30% are recoverable the same day if you reach the patient within 15 minutes. Without automation, that window closes every time. {nums['recover_day']} appointments per day — written off permanently.
 
-EMR NOTE ({emr}): {emr_note}
+GAP 3 — DORMANT PATIENT REACTIVATION: {nums['reactiv_month']}/month
 
-60-DAY ROI GUARANTEE
-If the system doesn't recover the full setup fee in measurable booked revenue within 60 days, full refund + 30 days free.
+{nums['dormant']} patients in your database haven't returned in 90+ days. They didn't leave unhappy — life got busy, nobody followed up. A PHIPA-compliant quarterly outreach campaign converts ~15% back to active — {nums['reactivatable']} patients per campaign. Acquisition cost: zero. This is the highest-margin gap of the three.
 
-BOOK YOUR FREE AUDIT CALL (20 min, no obligation):
+YOUR EMR ({emr}): {emr_note}
+
+─────────────────────────────────
+
+{owner}, every clinic on this list leaks revenue across these same three gaps. The ones closing it aren't working harder — they've automated the parts where patients fall through. This audit shows you exactly where that's happening at {clinic}.
+
+If you want to walk through which gap is costing you the most right now, I set aside 20 minutes for that conversation. No pitch. No deck. Just your numbers and a clear picture of what fixing them would actually look like.
+
+Schedule your free 20-minute call:
 {BOOKING_LINK}
+
+If it's not a fit, I'll tell you that in the first five minutes — and you'll still leave with a clearer picture of your clinic's numbers.
 
 —
 Vatsal | SOURCE X
-{SOURCEX_SITE} | info@getsourcex.com
+{SOURCEX_SITE} · info@getsourcex.com
 """
 
     message = Mail(
         from_email=(FROM_EMAIL, FROM_NAME),
         to_emails=To(prospect["email"]),
-        subject=f"Your Revenue Leak Audit — {clinic} ({city})",
+        subject=f"Your complimentary audit is ready, {owner} — {clinic}",
         plain_text_content=plain,
         html_content=html,
     )
