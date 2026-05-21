@@ -245,7 +245,7 @@ def send_audit_email(prospect, nums):
         <tr>
           <td style="font-size:18px;color:#16A34A;padding-right:12px;vertical-align:top;">✓</td>
           <td style="font-size:11px;color:#166534;line-height:1.6;">
-            <strong>60-Day ROI Guarantee.</strong> If the system doesn't recover at least the $7,500 setup fee in measurable booked revenue within 60 days of go-live, SOURCE X refunds the setup fee in full and runs the system another 30 days at no cost.
+            <strong>60-Day ROI Guarantee.</strong> If the system doesn't recover at least the full setup fee in measurable booked revenue within 60 days of go-live, SOURCE X refunds it in full and runs the system another 30 days at no cost.
           </td>
         </tr>
       </table>
@@ -256,7 +256,7 @@ def send_audit_email(prospect, nums):
       <p style="margin:0 0 6px;font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#93C5FD;">Free · No Commitment · 20 Minutes</p>
       <h2 style="margin:0 0 12px;font-size:20px;font-weight:900;color:#FFFFFF;line-height:1.2;">Book Your Clinic Revenue Gap Audit Call</h2>
       <p style="margin:0 0 24px;font-size:12px;color:rgba(255,255,255,0.7);line-height:1.65;">
-        Walk through these numbers together. Vatsal will confirm which gaps are highest-priority for {clinic} specifically and show you the Etobicoke case study — a live deployment with real numbers. Zero obligation. Founding-member pricing ends at 10 clients.
+        Walk through these numbers together. Vatsal will confirm which gaps are highest-priority for {clinic} specifically and show you the Etobicoke case study — a live deployment with real numbers. Zero obligation.
       </p>
       <table cellpadding="0" cellspacing="0">
         <tr>
@@ -271,10 +271,8 @@ def send_audit_email(prospect, nums):
     <tr><td style="background:#0F172A;padding:20px 40px;">
       <p style="margin:0;font-size:10px;color:rgba(255,255,255,0.3);line-height:1.7;">
         SOURCE X · AI Operations for Ontario Healthcare Clinics<br>
-        {SOURCEX_SITE} · workwithsourcex@gmail.com<br>
-        Confidential — Prepared exclusively for {prospect['owner_name']} · {clinic}<br>
-        <br>
-        Founding-member pricing ($7,500 setup + $1,500/mo) locked for first 10 clinics only.
+        {SOURCEX_SITE} · info@getsourcex.com<br>
+        Confidential — Prepared exclusively for {prospect['owner_name']} · {clinic}
       </p>
     </td></tr>
 
@@ -305,14 +303,14 @@ GAP 3 — DORMANT PATIENTS: {nums['reactiv_month']}/month
 EMR NOTE ({emr}): {emr_note}
 
 60-DAY ROI GUARANTEE
-If the system doesn't recover at least $7,500 in measurable booked revenue within 60 days, full refund + 30 days free.
+If the system doesn't recover the full setup fee in measurable booked revenue within 60 days, full refund + 30 days free.
 
 BOOK YOUR FREE AUDIT CALL (20 min, no obligation):
 {BOOKING_LINK}
 
 —
 Vatsal | SOURCE X
-{SOURCEX_SITE} | workwithsourcex@gmail.com
+{SOURCEX_SITE} | info@getsourcex.com
 """
 
     message = Mail(
@@ -344,29 +342,18 @@ def send_owner_notification(prospect, nums):
     calls  = prospect.get("daily_calls", "not provided")
     notes  = prospect.get("notes", "none")
 
-    body = f"""NEW AUDIT REQUEST — SOURCE X
-==============================
+    body = f"""New audit request — {clinic} ({city})
 
-Clinic:    {clinic}
-Owner:     {prospect['owner_name']}
-Email:     {email}
-Phone:     {phone}
-City:      {city}
-Locations: {locs}
-EMR:       {emr}
-Calls/day: {calls}
-Notes:     {notes}
+Owner: {prospect['owner_name']}
+Email: {email}
+Phone: {phone}
+Locations: {locs} · EMR: {emr}
+Notes: {notes}
 
-AUDIT NUMBERS SENT:
-  Monthly risk:   {nums['total_month']}
-  Annual:         {nums['total_year']}
-  Payback:        {nums['payback_days']} days
+Monthly revenue at risk: {nums['total_month']}
+Annual projection: {nums['total_year']}
 
-Audit email sent automatically to {email}.
-Follow up in 3 days with email_follow_up_sequence.md — Email 2.
-
-Add to call tracker:
-  python3 tools/call_tracker.py add
+Audit sent automatically to {email}. Follow up in 3 days.
 """
 
     message = Mail(
@@ -433,12 +420,12 @@ FORM_HTML = """<!DOCTYPE html>
 
 <div class="hero">
   <div class="hero-logo">SOURCE X · AI Operations for Ontario Healthcare</div>
-  <div class="hero-badge">Free · No Commitment · Delivered in 48 Hours</div>
+  <div class="hero-badge">Free · No Commitment · Delivered in 24–48 Hours</div>
   <h1 class="hero-h1">How Much Is Your Clinic<br><em>Actually</em> Losing?</h1>
-  <p class="hero-sub">Submit your clinic info. Within 48 hours you get a personalized revenue leak estimate — specific to your location count, EMR, and call volume. No pitch. Just numbers.</p>
+  <p class="hero-sub">Submit your clinic info. Within 24 to 48 hours you get a personalized revenue leak estimate — specific to your location count, EMR, and call volume. No pitch. Just numbers.</p>
   <div class="hero-stats">
     <div class="hero-stat"><div class="hs-num">$8K–$25K</div><div class="hs-lbl">Monthly leak estimate</div></div>
-    <div class="hero-stat"><div class="hs-num">48 hrs</div><div class="hs-lbl">Delivered to your inbox</div></div>
+    <div class="hero-stat"><div class="hs-num">24–48 hrs</div><div class="hs-lbl">Delivered to your inbox</div></div>
     <div class="hero-stat"><div class="hs-num">0</div><div class="hs-lbl">Obligation or pitch</div></div>
   </div>
 </div>
@@ -492,13 +479,13 @@ FORM_HTML = """<!DOCTYPE html>
       <p class="privacy">Your clinic information is used only to build your personalized audit. Never shared or sold. PHIPA-aware handling throughout.</p>
 
       <button type="submit" class="submit-btn" id="submitBtn">Get My Free Revenue Leak Audit →</button>
-      <p class="submit-note">Sent to your inbox within 48 hours · No pitch · No obligation</p>
-      <p class="error-msg" id="errorMsg">Something went wrong. Please try again or email workwithsourcex@gmail.com directly.</p>
+      <p class="submit-note">Sent to your inbox within 24 to 48 hours · No pitch · No obligation</p>
+      <p class="error-msg" id="errorMsg">Something went wrong. Please try again or email info@getsourcex.com directly.</p>
     </form>
 
     <div class="success" id="successState">
       <div class="success-title">Done — your audit is on its way.</div>
-      <div class="success-text">You'll receive your personalized Revenue Leak Audit at the email you provided within 48 hours. No pitch inside it — just your numbers. Check your inbox (and spam folder just in case).</div>
+      <div class="success-text">You'll receive your personalized Revenue Leak Audit at the email you provided within 24 to 48 hours. No pitch inside it — just your numbers. Check your inbox (and spam folder just in case).</div>
     </div>
   </div>
 </div>
