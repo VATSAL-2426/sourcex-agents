@@ -49,9 +49,12 @@ def calculate(locations, daily_calls, avg_fee):
     lost_bkgs_day = missed_day * MISSED_CONVERSION
     missed_month  = lost_bkgs_day * WORKING_DAYS_MONTH * avg_fee
 
-    appts_day     = locations * APPTS_PER_LOCATION_DAY
-    noshows_day   = appts_day * NO_SHOW_RATE
-    recover_day   = noshows_day * NO_SHOW_RECOVERY
+    # Derive appointments from call volume (calls convert ~65% to held appts),
+    # capped at realistic per-location capacity of 35 chairs/day
+    appts_per_loc = min(round((daily_calls / max(locations, 1)) * 0.65), 35)
+    appts_day     = appts_per_loc * locations
+    noshows_day   = round(appts_day * NO_SHOW_RATE, 1)
+    recover_day   = round(noshows_day * NO_SHOW_RECOVERY, 1)
     noshows_month = recover_day * WORKING_DAYS_MONTH * avg_fee
 
     dormant       = locations * DORMANT_PER_LOCATION
@@ -480,6 +483,7 @@ FORM_HTML = """<!DOCTYPE html>
             <option value="120">100+</option>
           </select>
         </div>
+        <div><label for="avg_fee">Avg. Appointment Fee ($) <span class="req">*</span></label><input type="number" id="avg_fee" placeholder="e.g. 110" min="60" max="350" required></div>
         <div class="ff"><label for="hours">Clinic Hours</label><input type="text" id="hours" placeholder="e.g. Mon–Fri 8am–7pm, Sat 9am–3pm"></div>
         <div class="ff"><label for="notes">Anything specific to focus on? (optional)</label><input type="text" id="notes" placeholder="e.g. missed calls are our biggest issue"></div>
       </div>
@@ -516,6 +520,7 @@ FORM_HTML = """<!DOCTYPE html>
       locations:    document.getElementById('locations').value,
       emr:          document.getElementById('emr').value,
       daily_calls:  document.getElementById('daily_calls').value,
+      avg_fee:      document.getElementById('avg_fee').value,
       hours:        document.getElementById('hours').value.trim(),
       notes:        document.getElementById('notes').value.trim(),
     };
@@ -564,7 +569,13 @@ def submit():
 
         locations   = int(data["locations"])
         daily_calls = int(data.get("daily_calls") or str(locations * CALLS_PER_LOCATION_DAY))
-        avg_fee     = 110.0  # Ontario benchmark default
+
+        # Parse avg_fee from form; clamp to realistic Ontario range
+        try:
+            avg_fee = float(str(data.get("avg_fee", "") or "110").replace("$", "").replace(",", ""))
+            avg_fee = max(60.0, min(350.0, avg_fee))
+        except (ValueError, TypeError):
+            avg_fee = 110.0
 
         nums = calculate(locations, daily_calls, avg_fee)
 
