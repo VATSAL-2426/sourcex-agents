@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOURCE X — The First 5 Clients Playbook</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --black: #000; --white: #fff;
+  --gray-100: #f5f5f5; --gray-200: #e0e0e0; --gray-400: #999;
+  --gray-600: #666; --gray-800: #1a1a1a; --gray-900: #0d0d0d;
+  --border: rgba(255,255,255,0.08); --border-bright: rgba(255,255,255,0.16);
+  --red: #ff4444; --green: #44ff88;
+}
+@media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .page-break { page-break-before: always; }
+  .no-print { display: none !important; }
+}
+body { background: #0a0a0a; color: var(--white); font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+
+.toolbar { position: fixed; top: 0; left: 0; right: 0; background: rgba(0,0,0,0.96); border-bottom: 1px solid var(--border-bright); padding: 12px 40px; display: flex; align-items: center; justify-content: space-between; z-index: 1000; }
+.toolbar-label { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gray-600); }
+.toolbar-btn { background: var(--white); color: var(--black); border: none; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 9px 22px; cursor: pointer; }
+
+.document { max-width: 900px; margin: 80px auto 80px; }
+
+/* COVER */
+.cover { background: #000; min-height: 100vh; display: flex; flex-direction: column; padding: 80px; border: 1px solid var(--border); position: relative; overflow: hidden; }
+.cover::after { content: ''; position: absolute; bottom: -60px; right: -60px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%); }
+.cover-stamp { display: inline-block; border: 2px solid rgba(255,255,255,0.2); padding: 6px 14px; font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gray-400); margin-bottom: 60px; width: fit-content; }
+.cover-title { font-size: 56px; font-weight: 900; letter-spacing: -0.04em; line-height: 1; color: var(--white); }
+.cover-title .accent { color: var(--gray-400); }
+.cover-body { font-size: 14px; color: var(--gray-400); max-width: 500px; margin-top: 28px; margin-bottom: 60px; line-height: 1.7; }
+.cover-truth { border-top: 1px solid var(--border-bright); padding-top: 32px; margin-top: auto; }
+.cover-truth-label { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gray-600); margin-bottom: 14px; }
+.cover-truth-text { font-size: 15px; color: var(--white); font-weight: 600; line-height: 1.6; max-width: 600px; }
+
+/* SECTIONS */
+.section { background: #000; border: 1px solid var(--border); border-top: none; padding: 64px 80px; }
+.section:first-of-type { border-top: 1px solid var(--border); }
+
+.section-header { margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 20px; }
+.sec-num { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gray-600); min-width: 24px; padding-top: 2px; }
+.sec-titles {}
+.sec-label { font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gray-600); margin-bottom: 5px; }
+.sec-title { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; color: var(--white); line-height: 1.1; }
+.sec-sub { font-size: 12px; color: var(--gray-400); margin-top: 6px; }
+
+/* TYPE */
+h3 { font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 12px; }
+h4 { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gray-600); margin-bottom: 10px; }
+p { color: var(--gray-200); margin-bottom: 14px; }
+strong { color: var(--white); }
+
+/* GRIDS */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border-bright); border: 1px solid var(--border-bright); margin-bottom: 24px; }
+.grid-4 > * { background: #000; padding: 22px; }
+
+/* BOXES */
+.box { border: 1px solid var(--border-bright); padding: 24px 28px; margin-bottom: 16px; background: rgba(255,255,255,0.02); }
+.box-dark { border: 1px solid var(--border-bright); padding: 28px 32px; margin-bottom: 20px; background: rgba(255,255,255,0.04); }
+.box-warning { border: 1px solid rgba(255,68,68,0.4); padding: 20px 24px; margin-bottom: 16px; background: rgba(255,68,68,0.04); }
+.box-win { border: 1px solid rgba(68,255,136,0.3); padding: 20px 24px; margin-bottom: 16px; background: rgba(68,255,136,0.03); }
+
+/* STAT */
+.stat-num { font-size: 36px; font-weight: 900; letter-spacing: -0.03em; color: var(--white); line-height: 1; }
+.stat-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gray-600); margin-top: 6px; }
+.stat-sub { font-size: 11px; color: var(--gray-400); margin-top: 3px; }
+
+/* TABLE */
+table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+th { font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gray-600); padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-bright); }
+td { font-size: 12px; color: var(--gray-200); padding: 13px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+td strong { color: var(--white); }
+tr:last-child td { border-bottom: none; }
+.td-red { color: #ff6666 !important; }
+.td-green { color: #66ffaa !important; }
+
+/* LISTS */
+ul.check { list-style: none; margin-bottom: 14px; }
+ul.check li { padding: 5px 0 5px 22px; position: relative; color: var(--gray-200); font-size: 13px; }
+ul.check li::before { content: '✓'; position: absolute; left: 0; color: var(--white); font-weight: 700; }
+ul.cross { list-style: none; margin-bottom: 14px; }
+ul.cross li { padding: 5px 0 5px 22px; position: relative; color: var(--gray-400); font-size: 13px; }
+ul.cross li::before { content: '✗'; position: absolute; left: 0; color: #ff4444; }
+ul.arrow { list-style: none; margin-bottom: 14px; }
+ul.arrow li { padding: 6px 0 6px 20px; position: relative; color: var(--gray-200); font-size: 13px; border-bottom: 1px solid var(--border); }
+ul.arrow li:last-child { border-bottom: none; }
+ul.arrow li::before { content: '→'; position: absolute; left: 0; color: var(--gray-600); }
+
+/* QUOTE */
+.quote { border-left: 2px solid rgba(255,255,255,0.15); padding: 12px 20px; margin: 20px 0; }
+.quote p { font-style: italic; color: var(--gray-400); margin: 0; }
+.quote-attr { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-600); margin-top: 8px; }
+
+/* OFFER BOX */
+.offer-box { border: 1px solid rgba(255,255,255,0.3); padding: 40px; margin: 24px 0; background: rgba(255,255,255,0.04); }
+.offer-name { font-size: 22px; font-weight: 900; letter-spacing: -0.02em; color: var(--white); margin-bottom: 6px; }
+.offer-tagline { font-size: 12px; color: var(--gray-400); margin-bottom: 28px; }
+.offer-price-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+.offer-price-main { font-size: 42px; font-weight: 900; letter-spacing: -0.04em; color: var(--white); }
+.offer-price-period { font-size: 14px; color: var(--gray-400); }
+.offer-price-transition { font-size: 12px; color: var(--gray-400); margin-bottom: 28px; }
+.offer-divider { border: none; border-top: 1px solid var(--border-bright); margin: 24px 0; }
+
+/* STEP */
+.step { display: flex; gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--border); }
+.step:last-child { border-bottom: none; }
+.step-num { font-size: 28px; font-weight: 900; color: rgba(255,255,255,0.12); min-width: 40px; line-height: 1; }
+.step-content h3 { margin-bottom: 6px; }
+
+/* WEEK PLAN */
+.week-block { border: 1px solid var(--border); margin-bottom: 2px; }
+.week-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); }
+.week-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--white); }
+.week-goal { font-size: 10px; color: var(--gray-400); }
+.week-body { padding: 20px 24px; }
+.week-body ul.arrow li { font-size: 12px; }
+.daily-target { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-600); border: 1px solid var(--border-bright); padding: 4px 10px; margin-bottom: 12px; }
+
+/* TRUST STACK */
+.trust-item { display: grid; grid-template-columns: 200px 1fr; border-bottom: 1px solid var(--border); padding: 18px 0; gap: 20px; }
+.trust-item:last-child { border-bottom: none; }
+.trust-label { font-size: 12px; font-weight: 700; color: var(--white); }
+.trust-sub { font-size: 10px; color: var(--gray-600); margin-top: 3px; }
+.trust-desc { font-size: 12px; color: var(--gray-400); line-height: 1.6; }
+.trust-action { font-size: 11px; color: var(--white); margin-top: 8px; font-weight: 600; }
+
+/* COMPETITOR */
+.comp-row { display: grid; grid-template-columns: 140px 100px 1fr; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border); align-items: start; }
+.comp-row:last-child { border-bottom: none; }
+.comp-name { font-size: 12px; font-weight: 700; color: var(--white); }
+.comp-price { font-size: 12px; color: var(--gray-400); }
+.comp-weakness { font-size: 11px; color: var(--gray-400); }
+
+/* VALUE STACK TABLE */
+.vs-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.vs-row:last-child { border-bottom: none; }
+.vs-item { font-size: 12px; color: var(--gray-200); }
+.vs-val { font-size: 12px; font-weight: 700; color: var(--white); }
+.vs-row.total { padding-top: 16px; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.2); border-bottom: none; }
+.vs-row.total .vs-item { font-size: 14px; font-weight: 700; color: var(--white); }
+.vs-row.total .vs-val { font-size: 18px; font-weight: 900; color: var(--white); }
+
+/* FOOTER */
+.footer { background: #000; border: 1px solid var(--border); border-top: none; padding: 24px 80px; display: flex; justify-content: space-between; }
+.footer-text { font-size: 11px; color: var(--gray-600); }
+
+/* CALLOUT */
+.callout { border: 1px solid rgba(255,255,255,0.25); padding: 28px 32px; margin: 24px 0; }
+.callout h3 { margin-bottom: 8px; font-size: 16px; }
+.callout p { color: var(--gray-200); }
+
+/* DIVIDER */
+hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+
+/* BADGE */
+.badge { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 4px 10px; border: 1px solid; margin-right: 6px; margin-bottom: 8px; }
+.badge-white { color: var(--white); border-color: rgba(255,255,255,0.3); }
+.badge-gray { color: var(--gray-400); border-color: var(--border-bright); }
+</style>
+</head>
+<body>
+
+<div class="toolbar no-print">
+  <span class="toolbar-label">SOURCE X — First 5 Clients Playbook</span>
+  <button class="toolbar-btn" onclick="window.print()">Save as PDF</button>
+</div>
+
+<div class="document">
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-stamp">SOURCE X · Confidential · May 2026</div>
+  <div class="cover-title">FIRST 5<br>CLIENTS.<br><span class="accent">HOW.</span></div>
+  <div class="cover-body">
+    A brutally practical playbook for closing the first 5 paying clinic owners. No theory. The exact offer, the exact price, the exact trust-builders, and the exact week-by-week actions that will work without social proof or brand recognition.
+  </div>
+  <div class="cover-truth">
+    <div class="cover-truth-label">The Honest Starting Point</div>
+    <div class="cover-truth-text">
+      You have a real product that solves a real problem in a market with zero direct Canadian competition. The reason you don't have clients yet is not the product. It is the entry price and the lack of proof. This document fixes both.
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 1: THE REAL PROBLEM -->
+<div class="section">
+  <div class="section-header">
+    <div class="sec-num">01</div>
+    <div class="sec-titles">
+      <div class="sec-label">Honest Diagnosis</div>
+      <div class="sec-title">Why You Don't Have Clients Yet</div>
+      <div class="sec-sub">Not the market. Not the product. These specific things.</div>
+    </div>
+  </div>
+
+  <div class="box-warning">
+    <h4 style="color:#ff6666;">The Core Problem</h4>
+    <p>You are asking a clinic owner who has never heard of SOURCE X to hand over <strong>$7,500 upfront</strong> before seeing a single result from a system deployed at a clinic that is not their own. That is not a pricing problem. That is a <strong>trust gap</strong>. And trust gaps cannot be closed with better copywriting — only with lower risk or stronger proof.</p>
+  </div>
+
+  <div class="grid-3">
+    <div class="box">
+      <h4>Problem 1</h4>
+      <h3>The $7,500 Setup Fee</h3>
+      <p>It's the first number they hear. It is also the number that ends conversations. At zero client case studies, this is asking for faith, not a business decision.</p>
+    </div>
+    <div class="box">
+      <h4>Problem 2</h4>
+      <h3>One External Reference</h3>
+      <p>The Etobicoke clinic is your workplace — not a paying client. Clinic owners know the difference. "My own clinic" does not carry the same weight as "a client who paid me."</p>
+    </div>
+    <div class="box">
+      <h4>Problem 3</h4>
+      <h3>No Demo-Ready System</h3>
+      <p>You are describing what the system does. You are not showing it live. Seeing is believing, especially in healthcare. A 10-minute live screen share closes more than any pitch deck.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <h3>What actually closes first clients in a service business with no social proof</h3>
+    <p>Lower the financial risk to the point where saying no feels irrational. Make the guarantee stronger than any competitor has ever offered. Show the live system on a real screen. Give them results in the first 30 days that they cannot argue with. Then charge full price to everyone after that. The first 5 clients are not your revenue. They are your proof engine.</p>
+  </div>
+</div>
+
+<!-- SECTION 2: THE COMPETITION REALITY -->
+<div class="section page-break">
+  <div class="section-header">
+    <div class="sec-num">02</div>
+    <div class="sec-titles">
+      <div class="sec-label">Competitive Reality</div>
+      <div class="sec-title">What You're Actually Competing Against</div>
+      <div class="sec-sub">Not Weave. Not Podium. Here's the real comparison in a clinic owner's head.</div>
+    </div>
+  </div>
+
+  <p>The mistake is thinking the competition is other software. For an Ontario physio clinic owner, the real decision is between these options:</p>
+
+  <table>
+    <tr>
+      <th>Option</th>
+      <th>Upfront Cost</th>
+      <th>Monthly Cost</th>
+      <th>Risk</th>
+      <th>What They Think</th>
+    </tr>
+    <tr>
+      <td><strong>SOURCE X (current)</strong></td>
+      <td class="td-red">$7,500</td>
+      <td>$1,500</td>
+      <td class="td-red">High — unknown company</td>
+      <td>Too much for no track record</td>
+    </tr>
+    <tr>
+      <td><strong>Part-time receptionist</strong></td>
+      <td>$0</td>
+      <td>~$1,600</td>
+      <td class="td-green">Low — I can fire them</td>
+      <td>Familiar. Controllable.</td>
+    </tr>
+    <tr>
+      <td><strong>Do nothing</strong></td>
+      <td>$0</td>
+      <td>$0</td>
+      <td>Zero perceived risk</td>
+      <td>Always the default winner</td>
+    </tr>
+    <tr>
+      <td><strong>Weave / Podium</strong></td>
+      <td>$0–$200</td>
+      <td>$250–$400</td>
+      <td>Low — US brand, known</td>
+      <td>Cheaper, but different product</td>
+    </tr>
+    <tr>
+      <td><strong>Local agency "AI chatbot"</strong></td>
+      <td>$1,000–$2,000</td>
+      <td>$2,000–$5,000</td>
+      <td>Medium — usually no guarantee</td>
+      <td>Generic, probably not PHIPA-compliant</td>
+    </tr>
+  </table>
+
+  <div class="box-win">
+    <h4 style="color:#66ffaa;">The Critical Market Gap</h4>
+    <p>There is <strong>no Canadian company</strong> offering a 60-second AI callback with direct Jane App or Juvonno booking integration that is PHIPA-compliant by design. Not one. Weave, Podium, NexHealth — all US-only or US-centric. They do not understand PHIPA data residency. They do not integrate with Jane natively. They are not built for physio. <strong>SOURCE X's only real competition is "do nothing."</strong> That means the battle is about risk, not features.</p>
+  </div>
+
+  <h3>What Clinic Owners Say vs. What They Mean</h3>
+  <table>
+    <tr>
+      <th>What They Say</th>
+      <th>What They Actually Mean</th>
+      <th>How to Address It</th>
+    </tr>
+    <tr>
+      <td>"We need to think about it"</td>
+      <td>The risk feels too high for an unproven company</td>
+      <td>Reduce the financial risk. Offer the pilot structure.</td>
+    </tr>
+    <tr>
+      <td>"The price is a bit high"</td>
+      <td>I don't believe the ROI claim yet because I haven't seen proof</td>
+      <td>Show the live dashboard. Give them the first 30 days to prove it.</td>
+    </tr>
+    <tr>
+      <td>"We're not ready for AI yet"</td>
+      <td>I don't want to be the guinea pig</td>
+      <td>Position them as a Charter Partner, not a test subject. Reframe the narrative.</td>
+    </tr>
+    <tr>
+      <td>"We already have something"</td>
+      <td>I have voicemail and manual callbacks — I've convinced myself that's fine</td>
+      <td>Show the math. "What's your missed-call rate?" They never know. The audit does this.</td>
+    </tr>
+    <tr>
+      <td>"PHIPA concerns"</td>
+      <td>Genuine. Healthcare owners are scared of fines.</td>
+      <td>Send the PHIPA compliance document before they even book a call. Remove this barrier proactively.</td>
+    </tr>
+  </table>
+</div>
+
+<!-- SECTION 3: THE CHARTER OFFER -->
+<div class="section page-break">
+  <div class="section-header">
+    <div class="sec-num">03</div>
+    <div class="sec-titles">
+      <div class="sec-label">The Offer That Will Actually Close</div>
+      <div class="sec-title">The Charter Partner Program</div>
+      <div class="sec-sub">Not a discount. Not a trial. A structured partnership built for clinic owners with zero tolerance for risk.</div>
+    </div>
+  </div>
+
+  <p>Do not call this a discount, a trial, a pilot, or a deal. That language signals desperation and invites negotiation. <strong>"Charter Partner"</strong> signals exclusivity — you are choosing them as much as they are choosing you. You are giving them something that will not exist after client #5.</p>
+
+  <div class="offer-box">
+    <div class="offer-name">The 60-Second Recovery System™</div>
+    <div class="offer-tagline">Charter Partner Edition — Clinic 1 of 5 Only</div>
+    <hr class="offer-divider">
+    <div class="offer-price-row">
+      <div class="offer-price-main">$0</div>
+      <div class="offer-price-period">setup fee — waived permanently for Charter Partners</div>
+    </div>
+    <div class="offer-price-row" style="margin-top:12px;">
+      <div class="offer-price-main">$997</div>
+      <div class="offer-price-period">/ month — months 1 through 3</div>
+    </div>
+    <div class="offer-price-transition">→ Transitions automatically to $1,750/month from month 4 onward if results are delivered. If results are not delivered, stays at $997 until they are.</div>
+    <hr class="offer-divider">
+    <h4>Everything Included</h4>
+    <div class="vs-row"><span class="vs-item">AI Missed-Call Agent (60-second callback, 24/7/365)</span><span class="vs-val">Core System</span></div>
+    <div class="vs-row"><span class="vs-item">Direct Jane App or Juvonno integration — books directly into your EMR</span><span class="vs-val">Included</span></div>
+    <div class="vs-row"><span class="vs-item">PHIPA compliance package — data residency, consent, audit trail</span><span class="vs-val">Included</span></div>
+    <div class="vs-row"><span class="vs-item">No-show recovery module — SMS + voice follow-up on same-day gaps</span><span class="vs-val">Included</span></div>
+    <div class="vs-row"><span class="vs-item">Google review follow-up automation (post-visit SMS requesting review)</span><span class="vs-val">Included</span></div>
+    <div class="vs-row"><span class="vs-item">Monthly ROI dashboard — recovered calls, bookings, revenue in dollars</span><span class="vs-val">Included</span></div>
+    <div class="vs-row"><span class="vs-item">Vatsal's direct cell for the first 90 days — not a ticket system</span><span class="vs-val">Included</span></div>
+    <div class="vs-row"><span class="vs-item">PHIPA compliance certificate — yours to keep regardless of outcome</span><span class="vs-val">Included</span></div>
+    <hr class="offer-divider">
+    <h4>The Guarantee</h4>
+    <p style="color:#e0e0e0; font-size:13px; line-height:1.7;">In the first 30 days, we show you a report of every missed call the system responded to, every callback made, and every appointment booked. <strong>If the system did not respond to at least 90% of missed calls within 60 seconds, we work for free until it does.</strong> If you want out after 60 days for any reason, you walk away and pay nothing more. No invoice, no collections call, no argument. <strong>Your financial risk is capped at $1,994 ($997 × 2 months).</strong> We can't guarantee how many patients book — that depends on why they called. We can guarantee the system shows up every time.</p>
+    <hr class="offer-divider">
+    <div class="grid-3">
+      <div>
+        <h4>Spots Available</h4>
+        <p style="font-size:22px; font-weight:900; color:#fff;">5 of 5</p>
+        <p style="color:#666; font-size:11px;">When spot 5 is taken, Charter Program closes permanently.</p>
+      </div>
+      <div>
+        <h4>Go-Live Timeline</h4>
+        <p style="font-size:22px; font-weight:900; color:#fff;">21 Days</p>
+        <p style="color:#666; font-size:11px;">From signed agreement to first AI callback active in your clinic.</p>
+      </div>
+      <div>
+        <h4>After Charter Closes</h4>
+        <p style="font-size:22px; font-weight:900; color:#fff;">$9,500 + $1,750</p>
+        <p style="color:#666; font-size:11px;">Setup fee reinstated. Monthly increases. Charter price locked for partners.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="box-warning">
+    <h4 style="color:#ff6666;">Why $997/month specifically — not $1,500</h4>
+    <p>$997 is psychologically below $1,000. For a clinic doing $800K–$2M/year, this is a rounding error. But "under a thousand a month" feels entirely different to a business owner than "fifteen hundred a month." The first three months are designed to prove ROI so decisively that the transition to $1,750 in month 4 feels obvious, not painful. They will not want to leave after seeing the results. This is the strategy.</p>
+  </div>
+
+  <h3>Why $0 Setup Fee (Not a Discount — A Strategic Decision)</h3>
+  <p>The setup fee is not a profit center at this stage. It is a barrier. Waiving it removes the single biggest objection — "I have to pay $7,500 before I see a result" — without making you look desperate. The framing is critical:</p>
+  <div class="box">
+    <p><em>"The setup fee for SOURCE X is $9,500. For the five Charter Partners, it's permanently waived — not as a discount, but because I want my first five clients to judge the system on its results, not on their willingness to take a financial risk on a company that's new. You get the full system. If it works — and it will — you pay $1,750 a month going forward. If it somehow doesn't, you've risked less than $2,000 to find out."</em></p>
+  </div>
+</div>
+
+<!-- SECTION 4: VALUE STACK -->
+<div class="section page-break">
+  <div class="section-header">
+    <div class="sec-num">04</div>
+    <div class="sec-titles">
+      <div class="sec-label">Delivering Enough Value They Pay for More</div>
+      <div class="sec-title">The Value Stack That Creates Raving Fans</div>
+      <div class="sec-sub">Give them so much in the first 90 days that $1,750/month in month 4 feels like a bargain.</div>
+    </div>
+  </div>
+
+  <p>Your goal with the first 5 clients is not to maximize revenue. It is to make them so successful that they cannot imagine operating without you, and that they refer 2–3 other clinic owners within 6 months. This is how you build a $1M business from 5 clients.</p>
+
+  <div class="box-dark">
+    <h4>The 90-Day Raving Fan Protocol — Do This for Every Charter Partner</h4>
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-content">
+        <h3>Day 1–21: White-Glove Onboarding</h3>
+        <p>Personal Zoom call with the clinic owner AND their front desk manager. Walk them through the dashboard together. Explain exactly what the AI says on calls. Show them the PHIPA audit trail. Give them Vatsal's direct cell number. Make this feel like the most organized onboarding they've ever experienced in any software purchase. First impressions in the first 3 weeks determine whether they become a raving fan or a churn risk.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-content">
+        <h3>Day 30: Unsolicited Month 1 Activity Report</h3>
+        <p>Send this without being asked. A one-page breakdown: how many missed calls the system responded to, how many callbacks were made, how many appointments were booked, and how fast the system responded on average. Lead with the behavior data — calls answered, callbacks made, response time. Revenue follows naturally from that. If 12 appointments were booked, note it and let the clinic owner do the math themselves. When they calculate the ROI on their own, they believe it. Don't do it for them — show them the activity and let the number hit them.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-content">
+        <h3>Day 45: Surprise Add-On — Google Review Automation Live</h3>
+        <p>Activate the Google Review follow-up module and tell them about it after it's already running. "I added something to your system last week — you should be seeing more Google review requests going out to patients after their appointments. Here's how it works." They didn't ask for it. They don't pay extra for it. This is the moment they start telling other clinic owners about you.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-content">
+        <h3>Day 60: Quarterly Strategy Call</h3>
+        <p>A 30-minute call. Review their numbers. Suggest one optimization (timing of callback, script adjustment, follow-up message tone). Ask: "Is there anything the system isn't catching that you wish it was?" Listen hard. This call is also how you identify the path to upselling them to the premium tier — dormant patient reactivation, multi-location expansion, deeper reporting.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">05</div>
+      <div class="step-content">
+        <h3>Day 90: The Referral Ask</h3>
+        <p>After 90 days of strong results, this is natural, not pushy. "We've recovered approximately $X for your clinic in the first 90 days. We're opening the last 2 Charter Partner spots to a small number of operators — if you know any clinic owners running 2 or more locations who deal with the same missed-call problem you had, I'd love an introduction. I'll give you a free month for any clinic that signs a 6-month agreement." One referral from a happy client = $21,000 in year 1 revenue from that referral alone.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>What Makes Them Pay $1,750+ Without Hesitation in Month 4</h3>
+  <div class="grid-2">
+    <div class="box">
+      <h4>The Math They See</h4>
+      <p>If the system recovered $4,200 in first-visit bookings in 90 days ($1,400/month average), and they've paid $1,994 total for those 3 months, they're already at 2.1X ROI before month 4 starts.</p>
+      <p>The conversation about $1,750/month is: "You're paying $1,750 to continue recovering what is effectively $4,000–6,000 per month. The math still works at any price I could reasonably charge."</p>
+    </div>
+    <div class="box">
+      <h4>The Google Review Effect</h4>
+      <p>More Google reviews → higher local search ranking → more organic new patients. A clinic going from 47 to 90 reviews in 3 months is seeing real business impact beyond just the missed calls. This is additional value that compounds invisibly and makes leaving feel genuinely costly.</p>
+      <p>One new patient from improved SEO = $115 first visit + $600 follow-up LTV. Reviews are not fluff.</p>
+    </div>
+  </div>
+
+  <div class="box-win">
+    <h4 style="color:#66ffaa;">The Upsell Path (Month 4 Onward)</h4>
+    <p>Once they are at $1,750/month and happy, introduce the next layer at month 5 or 6:</p>
+    <ul class="arrow">
+      <li><strong>Dormant Patient Reactivation:</strong> Send automated SMS/voice to patients who haven't booked in 90+ days. One campaign to 200 dormant patients typically recovers 15–30 bookings. Worth $1,725–$3,450 in one send. Charge $500/campaign or $300/month as an add-on.</li>
+      <li><strong>Multi-Location Expansion:</strong> If they have 3 locations on the system, offer location 4 or 5 at $500/month/location instead of a new setup fee. Stacks their existing retainer.</li>
+      <li><strong>Priority Support Upgrade:</strong> At $250/month, they get a 2-hour response SLA and a dedicated quarterly deep-dive call. Low cost to deliver. High perceived value to operations-focused owners.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SECTION 5: TRUST WITHOUT PROOF -->
+<div class="section page-break">
+  <div class="section-header">
+    <div class="sec-num">05</div>
+    <div class="sec-titles">
+      <div class="sec-label">Building Trust Without Case Studies</div>
+      <div class="sec-title">How to Be Credible Before You're Proven</div>
+      <div class="sec-sub">You cannot fake case studies. But you can build trust through these specific actions instead.</div>
+    </div>
+  </div>
+
+  <div class="trust-item">
+    <div>
+      <div class="trust-label">The Live Screen Share</div>
+      <div class="trust-sub">Most powerful trust-builder available</div>
+    </div>
+    <div>
+      <div class="trust-desc">On every discovery call, show the Etobicoke system live. Not a demo environment — the actual running system. Show the dashboard, show the call log, show a real recovered booking. Seeing a live system working is worth more than any case study. No one else pitching them will do this.</div>
+      <div class="trust-action">Action: Before your first sales call, build a clean demo view of the Etobicoke dashboard. Practice the screen share. Make it 8 minutes max — quick, confident, specific.</div>
+    </div>
+  </div>
+
+  <div class="trust-item">
+    <div>
+      <div class="trust-label">PHIPA Documentation First</div>
+      <div class="trust-sub">Send before the sales call, not after</div>
+    </div>
+    <div>
+      <div class="trust-desc">Most vendors bring up PHIPA when asked. Send your PHIPA compliance one-pager in the pre-call confirmation email, before the prospect even has to ask. This signals that you've already thought about what worries them most. For clinic owners, this alone separates you from every other vendor they've ever spoken with.</div>
+      <div class="trust-action">Action: Create a 1-page "PHIPA Compliance Summary" PDF covering the 4 pillars: consent language, Canadian data residency, interaction logging, data minimization. Include Vatsal's name and contact. Send with every audit.</div>
+    </div>
+  </div>
+
+  <div class="trust-item">
+    <div>
+      <div class="trust-label">The Etobicoke Reference</div>
+      <div class="trust-sub">Get permission. Use it fully.</div>
+    </div>
+    <div>
+      <div class="trust-desc">Ask your clinic's owner or director to be a reference — even an informal one. "If a clinic owner I'm speaking with wants to speak to someone who has seen this system work, would you be willing to take a 5-minute call?" Most clinic operators will say yes. One phone reference from a real clinic person is worth 10 written testimonials.</div>
+      <div class="trust-action">Action: Ask this week. If yes, brief them on what to say: how the system works, what results they've seen, how easy the setup was. Do not leave this to chance.</div>
+    </div>
+  </div>
+
+  <div class="trust-item">
+    <div>
+      <div class="trust-label">Operator Credibility Framing</div>
+      <div class="trust-sub">Not a vendor. A peer.</div>
+    </div>
+    <div>
+      <div class="trust-desc">The opening line in every call and every LinkedIn message positions Vatsal as someone who works inside a clinic — not someone selling software to clinics. This is a genuine moat. No US competitor can say "I built this because I saw the problem every morning in my own clinic." Use it constantly and without apology.</div>
+      <div class="trust-action">Action: Every LinkedIn post, every email, every cold call opens from the operator angle. Never say "our software" — say "the system I built for our clinic."</div>
+    </div>
+  </div>
+
+  <div class="trust-item">
+    <div>
+      <div class="trust-label">The Iron Guarantee</div>
+      <div class="trust-sub">Make it uncomfortable for them to say no</div>
+    </div>
+    <div>
+      <div class="trust-desc">The guarantee is behavior-based, not revenue-based: "In the first 30 days, we show you a full report — every missed call responded to, every callback made, every appointment booked. If the system didn't respond to 90% of missed calls within 60 seconds, we work free until it does. If you want out after 60 days, you walk away having paid at most $1,994 total. We can't guarantee how many patients book — we can guarantee the system shows up every time." This is a promise you can keep. Revenue projections are not.</div>
+      <div class="trust-action">Action: Lead every conversation with the behavior guarantee. Let the revenue data from month 1 speak for itself — don't promise it upfront.</div>
+    </div>
+  </div>
+
+  <div class="trust-item" style="border-bottom:none;">
+    <div>
+      <div class="trust-label">Radical Transparency</div>
+      <div class="trust-sub">Say the thing they're thinking</div>
+    </div>
+    <div>
+      <div class="trust-desc">In every sales call, say this directly: "I want to be upfront — SOURCE X is new. I have one deployment running at a clinic I work in, and five Charter Partner spots I'm opening to clinic owners who want to get in before the price changes. The reason the setup fee is waived is because I'd rather prove results than ask for faith. That is the deal." Saying this builds more trust than any polished pitch. Clinic owners respect directness. They've been sold vaporware before.</div>
+      <div class="trust-action">Action: Script this paragraph. Deliver it verbatim on every call. Do not soften it.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 6: 12-WEEK PLAN -->
+<div class="section page-break">
+  <div class="section-header">
+    <div class="sec-num">06</div>
+    <div class="sec-titles">
+      <div class="sec-label">The Execution Plan</div>
+      <div class="sec-title">12 Weeks to 5 Paying Clients</div>
+      <div class="sec-sub">Specific daily actions. Not strategies — actions.</div>
+    </div>
+  </div>
+
+  <div class="grid-4">
+    <div class="stat">
+      <div class="stat-num">42</div>
+      <div class="stat-label">Current Prospects</div>
+      <div class="stat-sub">Verified, named, GTA</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">8–12</div>
+      <div class="stat-label">Demo Calls Needed</div>
+      <div class="stat-sub">To close 5 (40–60% close rate)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">25/day</div>
+      <div class="stat-label">Dial Target</div>
+      <div class="stat-sub">Non-negotiable</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">$97K</div>
+      <div class="stat-label">Year 1 Revenue</div>
+      <div class="stat-sub">From 5 clients, conservative</div>
+    </div>
+  </div>
+
+  <div class="week-block">
+    <div class="week-header">
+      <div class="week-label">Week 1 — Fix the Foundation</div>
+      <div class="week-goal">Goal: Charter offer ready to pitch. Nothing sold without this done.</div>
+    </div>
+    <div class="week-body">
+      <div class="daily-target">Before any outreach happens</div>
+      <ul class="arrow">
+        <li>Rename the offer everywhere to "The 60-Second Recovery System™ — Charter Partner Edition"</li>
+        <li>Write the Charter Partner one-pager (use the offer box in Section 3 of this document as a template)</li>
+        <li>Create the PHIPA Compliance Summary PDF — 1 page, Vatsal's name, the 4 pillars, send with every audit</li>
+        <li>Build a clean demo view of the Etobicoke dashboard — practice the screen share until it's 8 minutes and confident</li>
+        <li>Ask the Etobicoke clinic owner/director to be an informal reference for 5-minute calls</li>
+        <li>Update all outreach scripts with the new offer, new pricing ($997/month, $0 setup), and the iron guarantee</li>
+        <li>Update the generate_audit.py to include Charter Partner framing and new pricing in the output PDF</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="week-block">
+    <div class="week-header">
+      <div class="week-label">Week 2 — Hit Every Prospect</div>
+      <div class="week-goal">Goal: Every one of the 42 prospects contacted. 5+ audit requests.</div>
+    </div>
+    <div class="week-body">
+      <div class="daily-target">25 dials every morning before 11am. Non-negotiable.</div>
+      <ul class="arrow">
+        <li><strong>Monday:</strong> Run <code>python3 tools/call_tracker.py today</code>. Call Kyle Whaley at Propel Physiotherapy first (416-621-2506). This is the #1 priority call. Use the new Charter opening.</li>
+        <li>For every interested prospect: do not pitch on the phone. Book a 20-minute Zoom for the screen share. "Can I show you the system live on a quick Zoom? It's easier than describing it."</li>
+        <li>For every audit request: generate within 24 hours, send with the PHIPA compliance PDF attached</li>
+        <li>LinkedIn: send connection requests + Message 1 to all 42 prospects. No pitch in connection request ever.</li>
+        <li>Post on LinkedIn every day this week. The Monday morning story (Week 1 Post 1) goes live Monday morning.</li>
+        <li>Log every call immediately: <code>python3 tools/call_tracker.py log</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="week-block">
+    <div class="week-header">
+      <div class="week-label">Week 3 — Run Demo Calls</div>
+      <div class="week-goal">Goal: 4–6 live screen share demos. First verbal yes.</div>
+    </div>
+    <div class="week-body">
+      <div class="daily-target">Demos in the morning. Follow-ups in the afternoon.</div>
+      <ul class="arrow">
+        <li>Run every demo the same way: 3 minutes rapport → 5 minutes "what's your current missed call situation?" → 8 minutes live screen share of Etobicoke → 4 minutes Charter offer presentation → ask for the decision</li>
+        <li>After every demo: send the personalized audit PDF within 2 hours. This is the post-demo "leave-behind."</li>
+        <li>Continue 25 dials/day on non-demo days. Do not slow outreach because demos are running.</li>
+        <li>LinkedIn follow-up (Message 2) to everyone who connected but hasn't responded</li>
+        <li>Identify and source 30 additional prospects beyond the original 42 using Google Maps searches from the prospect workflow</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="week-block">
+    <div class="week-header">
+      <div class="week-label">Week 4 — Close the First 2</div>
+      <div class="week-goal">Goal: 2 signed Charter Partners. $1,994 in month 1 revenue confirmed.</div>
+    </div>
+    <div class="week-body">
+      <div class="daily-target">Follow up on every demo within 48 hours. Do not wait for them to come to you.</div>
+      <ul class="arrow">
+        <li>Call every demo that hasn't responded. Use: "I wanted to check in — did you get a chance to look at the numbers in the audit I sent? I want to make sure they made sense for your clinic specifically."</li>
+        <li>For every objection: isolate it. "Is that the only thing stopping you?" Then address exactly that thing. Not a general pitch — the specific concern.</li>
+        <li>When someone says yes: send the agreement same day. Do not let 24 hours pass. Use a simple DocuSign or HelloSign agreement — one page, Charter Partner terms, pricing, guarantee, start date.</li>
+        <li>Begin onboarding immediately on signature. Book the kickoff Zoom for within 5 days.</li>
+        <li>Continue all outreach for clients 3, 4, 5. The pipeline does not pause because 2 clients signed.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="week-block">
+    <div class="week-header">
+      <div class="week-label">Weeks 5–8 — Onboard + Pipeline for Clients 3–4</div>
+      <div class="week-goal">Goal: Clients 1–2 live and showing early results. Clients 3–4 in closing stage.</div>
+    </div>
+    <div class="week-body">
+      <ul class="arrow">
+        <li>Get Clients 1 and 2 live within 21 days of signature. This is the commitment. Do not miss this.</li>
+        <li>Send their 30-day ROI report at day 30 exactly — unsolicited. Make it specific to their clinic.</li>
+        <li>Continue 20 dials/day on new prospects (slightly reduced from 25 because onboarding time required)</li>
+        <li>Add 50 more prospects to the tracker from new GTA searches</li>
+        <li>Publish the first newsletter issue (The Clinic Operator's AI Memo) — real data from the first 30 days of deployment</li>
+        <li>Post on LinkedIn 5x/week — shift content toward "what I'm seeing in the first deployments" as real data accumulates</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="week-block" style="margin-bottom:0;">
+    <div class="week-header">
+      <div class="week-label">Weeks 9–12 — Close 5. Activate Referrals.</div>
+      <div class="week-goal">Goal: All 5 Charter Partners signed. First referral ask made to Client 1.</div>
+    </div>
+    <div class="week-body">
+      <ul class="arrow">
+        <li>Clients 1–2 have 60–90 days of data. Their ROI report is strong. Make the referral ask now.</li>
+        <li>Use real numbers from Clients 1–2 in all pitches for Clients 3–5. You now have external case studies.</li>
+        <li>Close clients 3, 4, 5 using the same Charter structure. Mention that only [X] spots remain.</li>
+        <li>Begin planning the premium tier rollout for Clients 1–2 at month 4 ($1,750/month transition)</li>
+        <li>Draft the post-Charter pricing sheet ($9,500 setup + $1,750/month) ready to go for prospect #6 onward</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 7: FINANCIAL REALITY -->
+<div class="section page-break">
+  <div class="section-header">
+    <div class="sec-num">07</div>
+    <div class="sec-titles">
+      <div class="sec-label">The Numbers</div>
+      <div class="sec-title">What 5 Charter Partners Actually Generates</div>
+      <div class="sec-sub">Conservative. Honest. No made-up multipliers.</div>
+    </div>
+  </div>
+
+  <table>
+    <tr>
+      <th>Period</th>
+      <th>Active Clients</th>
+      <th>Monthly Revenue</th>
+      <th>Cumulative Revenue</th>
+      <th>Notes</th>
+    </tr>
+    <tr>
+      <td><strong>Month 1</strong></td>
+      <td>1–2 signed, 0–1 live</td>
+      <td>$997–$1,994</td>
+      <td>$997–$1,994</td>
+      <td>First clients onboarding. No setup fee revenue.</td>
+    </tr>
+    <tr>
+      <td><strong>Month 2</strong></td>
+      <td>3 signed, 2 live</td>
+      <td>$1,994–$2,991</td>
+      <td>$3,988–$4,985</td>
+      <td>Clients 1–2 generating results. Client 3 onboarding.</td>
+    </tr>
+    <tr>
+      <td><strong>Month 3</strong></td>
+      <td>5 signed, 4–5 live</td>
+      <td>$3,988–$4,985</td>
+      <td>$8,000–$10,000</td>
+      <td>All 5 charter spots taken. First ROI reports going out.</td>
+    </tr>
+    <tr>
+      <td><strong>Month 4</strong></td>
+      <td>5 active, 3 transition to $1,750</td>
+      <td>$6,500–$8,750</td>
+      <td>$14,500–$18,750</td>
+      <td>Clients 1–2 transition to $1,750. Client 3 in 90-day window still.</td>
+    </tr>
+    <tr>
+      <td><strong>Month 6</strong></td>
+      <td>5 active + 2–3 referral clients</td>
+      <td>$12,250–$14,000</td>
+      <td>~$45,000</td>
+      <td>Referral clients from Charter Partners. Post-charter pricing.</td>
+    </tr>
+    <tr>
+      <td><strong>Month 12</strong></td>
+      <td>5 charter + 8–10 post-charter</td>
+      <td>$22,500–$28,000</td>
+      <td>~$130,000–$160,000</td>
+      <td>Charter partners now at $1,750/mo. Some upgraded to premium. Referral flywheel running.</td>
+    </tr>
+  </table>
+
+  <div class="grid-2">
+    <div class="box">
+      <h4>Charter Partner LTV (24 months)</h4>
+      <ul class="arrow">
+        <li>Months 1–3: $997/month = $2,991</li>
+        <li>Months 4–24: $1,750/month = $36,750</li>
+        <li><strong>Total: $39,741 per Charter Partner</strong></li>
+        <li>With upsells (dormant campaigns, premium): $50,000+</li>
+        <li>With 2 referrals generated: effectively $120,000+ LTV</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h4>Break-Even for the Clinic (Their Perspective)</h4>
+      <ul class="arrow">
+        <li>They pay $1,994 in first 2 months</li>
+        <li>System needs to recover 17.3 first-visit bookings to break even</li>
+        <li>At 10% missed-call rate on 90 daily calls: ~9 missed calls/day</li>
+        <li>50% recovery rate: 4.5 bookings/day from missed calls</li>
+        <li><strong>Break-even reached in 4 days of operation</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <h3>The conversation that converts skeptics</h3>
+    <p>When a clinic owner says "I need to think about it," say this: "Let me show you the worst case. You pay $997 this month and $997 next month. That's $1,994 total. In month 1, you get a full report showing exactly how many missed calls the system responded to, how many callbacks were made, and how many appointments were booked. If you look at that report and don't see value, you cancel. No invoice. The risk isn't the money — $1,994 is two months of part-time receptionist hours. The risk is running the same system for another 60 days while 400 patients a month reach your voicemail."</p>
+    <p>Then stop talking. Let them sit with the math.</p>
+  </div>
+</div>
+
+<!-- SECTION 8: THE DAILY OPERATING SYSTEM -->
+<div class="section page-break">
+  <div class="section-header">
+    <div class="sec-num">08</div>
+    <div class="sec-titles">
+      <div class="sec-label">Daily Non-Negotiables</div>
+      <div class="sec-title">The Operating System for the Next 90 Days</div>
+      <div class="sec-sub">Do these things. Every day. Even when it feels like nothing is working.</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="box-dark">
+      <h4>Morning Block — 7:30am to 11:00am</h4>
+      <ul class="check">
+        <li><strong>7:30am:</strong> Run <code>call_tracker.py today</code>. Know who you're calling before you pick up the phone.</li>
+        <li><strong>8:00am–10:30am:</strong> 25 dials. Log every outcome immediately. No exceptions.</li>
+        <li><strong>10:30am–11:00am:</strong> Respond to any LinkedIn messages from the previous 24 hours. Send Message 2 or 3 to appropriate prospects.</li>
+      </ul>
+    </div>
+    <div class="box-dark">
+      <h4>Afternoon Block — 1:00pm to 3:00pm</h4>
+      <ul class="check">
+        <li><strong>1:00pm–2:00pm:</strong> Generate and send audit PDFs for any audit requests from the morning.</li>
+        <li><strong>2:00pm–2:30pm:</strong> Post one piece of LinkedIn content. Not "whenever I have time." Now.</li>
+        <li><strong>2:30pm–3:00pm:</strong> Run any booked demo calls. Or prospect research if no demos scheduled.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="box">
+    <h4>Weekly Review — Every Sunday, 30 Minutes</h4>
+    <p>Answer these questions in writing. Not in your head. In a note:</p>
+    <ul class="arrow">
+      <li>How many dials this week? (Target: 125)</li>
+      <li>How many audit requests? (Target: 5+)</li>
+      <li>How many demos booked? (Target: 3+)</li>
+      <li>How many offers made? (Target: 2+)</li>
+      <li>What was the most common objection? What is the answer to that objection next week?</li>
+      <li>What LinkedIn post performed best? Do more of that format next week.</li>
+    </ul>
+    <p>If dials are below 100, next week starts at 6:30am. The only fix for low activity is more activity.</p>
+  </div>
+
+  <div class="box-warning">
+    <h4 style="color:#ff6666;">The One Thing That Kills First-Time Founders</h4>
+    <p>Tweaking the offer instead of doing the calls. Redesigning the audit PDF instead of sending it. Optimizing the LinkedIn profile instead of posting. <strong>There is no version of this business that succeeds without 25 dials a day for 90 consecutive days.</strong> The offer is ready. The system is ready. The only missing input is volume and consistency. Everything else is procrastination dressed up as preparation.</p>
+  </div>
+
+  <div class="callout">
+    <h3>The 5-Client Success Formula</h3>
+    <p>
+      <strong>42 prospects → 25 dials/day → 8 demo calls → 5 closed clients.</strong><br><br>
+      That is the math. It is not complicated. The conversion rates are conservative. If your close rate on demos is 40% instead of 60%, you need 13 demos instead of 8. That means 20 more dials spread over 1 extra week. This is entirely within your control. The market exists. The offer is competitive. The product works. The only variable is how many times you pick up the phone.
+    </p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-text">SOURCE X · First 5 Clients Playbook · May 2026 · Confidential</div>
+  <div class="footer-text">workwithsourcex@gmail.com · getsourcex.com</div>
+</div>
+
+</div>
+</body>
+</html>

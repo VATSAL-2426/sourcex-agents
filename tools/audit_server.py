@@ -46,48 +46,47 @@ MONTHLY_FEE              = 1500
 
 
 def calculate(locations, daily_calls, avg_fee):
-    missed_day    = daily_calls * MISSED_CALL_RATE
-    lost_bkgs_day = missed_day * MISSED_CONVERSION
-    missed_month  = lost_bkgs_day * WORKING_DAYS_MONTH * avg_fee
+    # ── Patient contact gap (what the audit leads with) ───────────────────────
+    missed_day         = daily_calls * MISSED_CALL_RATE
+    missed_calls_month = round(missed_day * WORKING_DAYS_MONTH)
+    missed_calls_year  = missed_calls_month * 12
 
-    # Derive appointments from call volume (calls convert ~65% to held appts),
-    # capped at realistic per-location capacity of 35 chairs/day
+    # ── No-show gap ───────────────────────────────────────────────────────────
     appts_per_loc = min(round((daily_calls / max(locations, 1)) * 0.65), 35)
     appts_day     = appts_per_loc * locations
     noshows_day   = round(appts_day * NO_SHOW_RATE, 1)
     recover_day   = round(noshows_day * NO_SHOW_RECOVERY, 1)
-    noshows_month = recover_day * WORKING_DAYS_MONTH * avg_fee
+    # Dollar estimates — labeled as potential impact, not guaranteed recovery
+    noshows_impact = recover_day * WORKING_DAYS_MONTH * avg_fee
 
+    # ── Dormant patients ──────────────────────────────────────────────────────
     dormant       = locations * DORMANT_PER_LOCATION
     reactivatable = math.floor(dormant * REACTIVATION_RATE)
-    reactiv_month = (reactivatable * avg_fee * VISITS_PER_REACTIVATION) / 3
 
-    total_month   = missed_month + noshows_month + reactiv_month
-    year1_recover = total_month * 12 * 0.60
-    year1_cost    = SETUP_FEE + (MONTHLY_FEE * 11)
-    roi_multiple  = year1_recover / year1_cost
-    payback_days  = math.ceil(SETUP_FEE / (total_month * 0.60 / 30))
+    # ── Dollar ranges (shown as estimates, not precise losses) ────────────────
+    # Missed call impact: conservative (20% conv, blended $100 fee) to optimistic (30% conv, avg_fee)
+    missed_impact_low  = missed_calls_month * 0.20 * min(avg_fee, 115)
+    missed_impact_high = missed_calls_month * 0.30 * avg_fee
+    reactiv_impact     = (reactivatable * avg_fee * VISITS_PER_REACTIVATION) / 3
 
     def fmt(n): return f"${n:,.0f}"
 
     return {
-        "missed_month":    fmt(missed_month),
-        "missed_day":      round(missed_day, 1),
-        "lost_bkgs_day":   round(lost_bkgs_day, 1),
-        "noshows_month":   fmt(noshows_month),
-        "noshows_day":     round(noshows_day, 1),
-        "recover_day":     round(recover_day, 1),
-        "dormant":         f"{dormant:,}",
-        "reactivatable":   reactivatable,
-        "reactiv_month":   fmt(reactiv_month),
-        "total_month":     fmt(total_month),
-        "total_year":      fmt(total_month * 12),
-        "year1_recover":   fmt(year1_recover),
-        "roi_multiple":    f"{roi_multiple:.1f}x",
-        "payback_days":    payback_days,
-        "avg_fee":         fmt(avg_fee),
-        "appts_day":       appts_day,
-        "daily_calls":     daily_calls,
+        # Patient counts — primary display
+        "missed_calls_month": f"{missed_calls_month:,}",
+        "missed_calls_year":  f"{missed_calls_year:,}",
+        "missed_day":         round(missed_day, 1),
+        "noshows_day":        round(noshows_day, 1),
+        "recover_day":        round(recover_day, 1),
+        "dormant":            f"{dormant:,}",
+        "reactivatable":      reactivatable,
+        "appts_day":          appts_day,
+        "daily_calls":        daily_calls,
+        # Dollar estimates — secondary, labeled clearly as estimates
+        "missed_impact_range": f"{fmt(missed_impact_low)}–{fmt(missed_impact_high)}",
+        "noshows_impact":      fmt(noshows_impact),
+        "reactiv_impact":      fmt(reactiv_impact),
+        "avg_fee":             fmt(avg_fee),
     }
 
 
@@ -139,24 +138,24 @@ def send_audit_email(prospect, nums):
 
     <!-- HERO -->
     <tr><td style="background:#1e2f6a;padding:40px 40px 32px;">
-      <p style="margin:0 0 12px;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#93C5FD;">Complimentary Revenue Audit — Prepared for {owner}</p>
-      <h1 style="margin:0 0 16px;font-size:26px;font-weight:900;color:#FFFFFF;line-height:1.15;">Here's What We Found<br>When We Ran {clinic}'s Numbers.</h1>
+      <p style="margin:0 0 12px;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#93C5FD;">Complimentary Clinic Call Audit — Prepared for {owner}</p>
+      <h1 style="margin:0 0 16px;font-size:26px;font-weight:900;color:#FFFFFF;line-height:1.15;">Here's What the Call Patterns<br>Show for {clinic}.</h1>
       <p style="margin:0 0 24px;font-size:13px;color:rgba(255,255,255,0.75);line-height:1.7;">
-        {owner}, I ran your clinic profile — {locs} location{'s' if int(locs)>1 else ''} in {city}, running {emr} — through the same revenue model we use across every Ontario multi-location practice we work with. What came back is worth your full attention. Three gaps. Real numbers. Specific to you.
+        {owner}, I looked at the call patterns for a clinic like yours — {locs} location{'s' if int(locs)>1 else ''} in {city}, running {emr} at {nums['daily_calls']} daily inbound calls. Three patterns came back. Each one is about patients who tried to reach you and didn't get through. The numbers are estimates based on Ontario clinic benchmarks — honest ranges, not precise promises.
       </p>
       <!-- Top stat row -->
       <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid rgba(255,255,255,0.12);">
         <tr>
           <td align="center" style="padding:16px;border-right:1px solid rgba(255,255,255,0.12);">
-            <div style="font-size:22px;font-weight:900;color:#FCA5A5;margin-bottom:4px;">{nums['total_month']}</div>
-            <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#93C5FD;">Left on the Table / Month</div>
+            <div style="font-size:22px;font-weight:900;color:#FCA5A5;margin-bottom:4px;">{nums['missed_calls_month']}</div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#93C5FD;">Calls / Month With No Live Answer</div>
           </td>
           <td align="center" style="padding:16px;border-right:1px solid rgba(255,255,255,0.12);">
-            <div style="font-size:22px;font-weight:900;color:#FFFFFF;margin-bottom:4px;">{nums['total_year']}</div>
-            <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#93C5FD;">Annual Revenue Gap</div>
+            <div style="font-size:22px;font-weight:900;color:#FFFFFF;margin-bottom:4px;">{nums['missed_calls_year']}</div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#93C5FD;">Patients / Year — Unanswered</div>
           </td>
           <td align="center" style="padding:16px;">
-            <div style="font-size:22px;font-weight:900;color:#86EFAC;margin-bottom:4px;">3 Gaps</div>
+            <div style="font-size:22px;font-weight:900;color:#86EFAC;margin-bottom:4px;">3 Patterns</div>
             <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#93C5FD;">Every one is fixable</div>
           </td>
         </tr>
@@ -165,17 +164,17 @@ def send_audit_email(prospect, nums):
 
     <!-- GAP 1: MISSED CALLS -->
     <tr><td style="background:#FFFFFF;padding:32px 40px 24px;border-left:4px solid #DC2626;">
-      <p style="margin:0 0 6px;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#DC2626;">Revenue Gap 01 — Missed Inbound Calls</p>
+      <p style="margin:0 0 6px;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#DC2626;">Patient Gap 01 — Unanswered Calls</p>
       <h2 style="margin:0 0 12px;font-size:18px;font-weight:900;color:#0F172A;line-height:1.2;">Most owners assume their front desk gets to every call.<br><span style="color:#DC2626;">The data says otherwise.</span></h2>
       <p style="margin:0 0 20px;font-size:12px;color:#475569;line-height:1.7;">
-        At {nums['daily_calls']} daily inbound calls, Ontario clinics your size miss roughly <strong style="color:#0F172A;">{nums['missed_day']} calls every single day</strong> — that's not a front desk problem, it's a volume problem. Most of those callers don't leave voicemails. They Google the next clinic and book there. At a 35% booking rate for calls answered within 60 seconds, that's <strong style="color:#0F172A;">{nums['lost_bkgs_day']} lost appointments per day</strong> that never touch your {emr} system.
+        At {nums['daily_calls']} daily inbound calls, Ontario clinics your size miss roughly <strong style="color:#0F172A;">{nums['missed_day']} calls every single day</strong> — that's not a front desk problem, it's a volume problem. Some of those callers were trying to book. Some wanted to reschedule. Some were calling after hours. All of them deserved a response within 60 seconds. Most didn't get one.
       </p>
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#FFF1F2;border:1px solid #FFE4E6;">
         <tr>
           <td style="padding:16px 20px;">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#991B1B;margin-bottom:4px;">What This Gap Costs {clinic} Each Month</div>
-            <div style="font-size:28px;font-weight:900;color:#991B1B;">{nums['missed_month']}</div>
-            <div style="font-size:10px;color:#7F1D1D;margin-top:4px;">First-visit revenue only — doesn't count follow-up visits, referrals, or lifetime patient value</div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#991B1B;margin-bottom:4px;">Patients Who Didn't Reach {clinic} This Month</div>
+            <div style="font-size:28px;font-weight:900;color:#991B1B;">{nums['missed_calls_month']}</div>
+            <div style="font-size:10px;color:#7F1D1D;margin-top:4px;">Calls answered by voicemail or not at all — potential booking impact: {nums['missed_impact_range']}/month</div>
           </td>
         </tr>
       </table>
@@ -185,17 +184,17 @@ def send_audit_email(prospect, nums):
 
     <!-- GAP 2: NO-SHOWS -->
     <tr><td style="background:#FFFFFF;padding:24px 40px;border-left:4px solid #D97706;">
-      <p style="margin:0 0 6px;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#D97706;">Revenue Gap 02 — No-Show Recovery</p>
-      <h2 style="margin:0 0 12px;font-size:18px;font-weight:900;color:#0F172A;line-height:1.2;">A no-show isn't just a missed appointment.<br><span style="color:#D97706;">It's a slot you already paid staff to cover.</span></h2>
+      <p style="margin:0 0 6px;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#D97706;">Patient Gap 02 — No-Show Recovery</p>
+      <h2 style="margin:0 0 12px;font-size:18px;font-weight:900;color:#0F172A;line-height:1.2;">A no-show isn't just a missed appointment.<br><span style="color:#D97706;">It's a patient who needed care and didn't come in.</span></h2>
       <p style="margin:0 0 20px;font-size:12px;color:#475569;line-height:1.7;">
         Across {nums['appts_day']} daily appointments, a standard 10% no-show rate means <strong style="color:#0F172A;">{nums['noshows_day']} chairs sit empty every day</strong>. The part most clinics don't know: 30% of those patients are reachable and willing to rebook — if you contact them within 15 minutes of their missed slot. Without automation, that window closes every time. With it, you recover <strong style="color:#0F172A;">{nums['recover_day']} appointments per day</strong> that would otherwise be written off.
       </p>
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#FFFBEB;border:1px solid #FEF3C7;">
         <tr>
           <td style="padding:16px 20px;">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#92400E;margin-bottom:4px;">Recoverable Monthly — No-Shows</div>
-            <div style="font-size:28px;font-weight:900;color:#92400E;">{nums['noshows_month']}</div>
-            <div style="font-size:10px;color:#78350F;margin-top:4px;">Currently treated as permanent loss — recoverable with same-day automated outreach</div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#92400E;margin-bottom:4px;">Empty Slots Per Month — No-Shows</div>
+            <div style="font-size:28px;font-weight:900;color:#92400E;">{nums['noshows_day']} / day</div>
+            <div style="font-size:10px;color:#78350F;margin-top:4px;">~30% are rebookable same-day if you reach the patient within 15 minutes — potential impact: {nums['noshows_impact']}/month</div>
           </td>
         </tr>
       </table>
@@ -205,8 +204,8 @@ def send_audit_email(prospect, nums):
 
     <!-- GAP 3: REACTIVATION -->
     <tr><td style="background:#FFFFFF;padding:24px 40px 32px;border-left:4px solid #1E3A8A;">
-      <p style="margin:0 0 6px;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#1E3A8A;">Revenue Gap 03 — Dormant Patient Reactivation</p>
-      <h2 style="margin:0 0 12px;font-size:18px;font-weight:900;color:#0F172A;line-height:1.2;">You already did the hard work acquiring these patients.<br><span style="color:#1E3A8A;">Reactivating them costs almost nothing.</span></h2>
+      <p style="margin:0 0 6px;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#1E3A8A;">Patient Gap 03 — Patients Who Drifted Away</p>
+      <h2 style="margin:0 0 12px;font-size:18px;font-weight:900;color:#0F172A;line-height:1.2;">These patients already trust your clinic.<br><span style="color:#1E3A8A;">They just haven't heard from you lately.</span></h2>
       <p style="margin:0 0 20px;font-size:12px;color:#475569;line-height:1.7;">
         <strong style="color:#0F172A;">{nums['dormant']} patients</strong> in your database haven't returned in 90+ days. They didn't leave because they were unhappy — life got busy, they forgot, nobody followed up. A PHIPA-compliant quarterly outreach sequence converts ~15% back to active in a single campaign — that's <strong style="color:#0F172A;">{nums['reactivatable']} patients per quarter</strong>, each averaging multiple return visits. This is the highest-margin revenue gap of the three because the acquisition cost is zero.
       </p>
@@ -220,9 +219,9 @@ def send_audit_email(prospect, nums):
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#EFF6FF;border:1px solid #DBEAFE;">
         <tr>
           <td style="padding:16px 20px;">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#1E3A8A;margin-bottom:4px;">Reactivation Revenue — Rolling Monthly</div>
-            <div style="font-size:28px;font-weight:900;color:#1E3A8A;">{nums['reactiv_month']}</div>
-            <div style="font-size:10px;color:#1e40af;margin-top:4px;">From patients already in your database — acquisition cost: zero</div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#1E3A8A;margin-bottom:4px;">Patients Ready to Return — Per Quarter</div>
+            <div style="font-size:28px;font-weight:900;color:#1E3A8A;">{nums['reactivatable']}</div>
+            <div style="font-size:10px;color:#1e40af;margin-top:4px;">From your existing database — already trust you, no acquisition cost, potential impact: {nums['reactiv_impact']}/quarter</div>
           </td>
         </tr>
       </table>
@@ -230,19 +229,19 @@ def send_audit_email(prospect, nums):
 
     <!-- TOTAL SUMMARY -->
     <tr><td style="background:#0F172A;padding:32px 40px;">
-      <div style="font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:10px;">Combined Monthly Revenue Gap — {clinic}</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:10px;">Monthly Patient Contact Gaps — {clinic}</div>
       <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
           <td style="vertical-align:top;">
-            <div style="font-size:36px;font-weight:900;color:#FCA5A5;line-height:1;">{nums['total_month']}<span style="font-size:16px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:4px;">/month</span></div>
+            <div style="font-size:36px;font-weight:900;color:#FCA5A5;line-height:1;">{nums['missed_calls_month']}<span style="font-size:16px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:4px;">calls/month unanswered</span></div>
             <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:8px;line-height:1.6;">
-              Missed calls {nums['missed_month']} &nbsp;·&nbsp; No-shows {nums['noshows_month']} &nbsp;·&nbsp; Reactivation {nums['reactiv_month']}
+              Unanswered calls &nbsp;·&nbsp; {nums['noshows_day']} no-shows/day &nbsp;·&nbsp; {nums['dormant']} dormant patients
             </div>
           </td>
           <td align="right" style="padding-left:24px;vertical-align:top;">
-            <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:6px;">Over 12 Months</div>
-            <div style="font-size:24px;font-weight:900;color:#86EFAC;">{nums['total_year']}</div>
-            <div style="font-size:9px;color:rgba(255,255,255,0.3);margin-top:4px;">Conservative baseline estimate</div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:6px;">Estimated Booking Impact</div>
+            <div style="font-size:20px;font-weight:900;color:#86EFAC;">{nums['missed_impact_range']}</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.3);margin-top:4px;">Conservative–realistic range estimate</div>
           </td>
         </tr>
       </table>
@@ -251,7 +250,7 @@ def send_audit_email(prospect, nums):
     <!-- INSIGHT BAR -->
     <tr><td style="background:#F8FAFF;border:1px solid #E2E8F0;padding:24px 40px;">
       <p style="margin:0;font-size:12px;color:#334155;line-height:1.75;">
-        <strong style="color:#1E3A8A;">{owner}, here's the honest truth:</strong> every clinic on this list is leaking revenue across these same three gaps. The ones closing the gap aren't working harder — they've automated the parts where patients fall through. This audit exists to show you exactly where that's happening at {clinic}, with your actual numbers. What you do with it is entirely up to you.
+        <strong style="color:#1E3A8A;">{owner}, here's the honest truth:</strong> every clinic at your call volume has patients who tried to reach them and didn't get through. The ones who've fixed it didn't hire more staff — they made sure a response happens regardless of when the call comes in. This report shows the size of the gap at {clinic}. What you do with it is entirely up to you.
       </p>
     </td></tr>
 
@@ -260,7 +259,7 @@ def send_audit_email(prospect, nums):
       <p style="margin:0 0 8px;font-size:9px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#93C5FD;">Free · No Pitch · 20 Minutes</p>
       <h2 style="margin:0 0 14px;font-size:22px;font-weight:900;color:#FFFFFF;line-height:1.2;">Want to Walk Through<br>These Numbers Together?</h2>
       <p style="margin:0 0 28px;font-size:12px;color:rgba(255,255,255,0.72);line-height:1.75;">
-        This audit runs the numbers. The 20-minute call is where we figure out which gap is costing {clinic} the most right now — and what closing it would actually look like given your specific setup, staff count, and how your {emr} workflows run today. No pitch. No deck. Just a clear picture of where the money is going and what it would take to stop it.
+        This report shows the scope. The 20-minute call is where we look at your actual call patterns together and figure out what a 60-second response to every missed call would change for {clinic} — given your setup, your staff, and how your {emr} works today. No pitch. No deck. Just an honest conversation about whether this is the right fit.
       </p>
       <table cellpadding="0" cellspacing="0">
         <tr>
@@ -290,32 +289,32 @@ def send_audit_email(prospect, nums):
 
     plain = f"""Hi {owner},
 
-Your complimentary revenue audit for {clinic} is ready. I ran your clinic profile through the same model we use across Ontario multi-location practices. Here's what the numbers showed.
+Your complimentary clinic call audit for {clinic} is ready. I looked at the call patterns for a clinic like yours and found three gaps — each one about patients who tried to reach you and didn't get through. The numbers below are estimates based on Ontario clinic benchmarks.
 
 ─────────────────────────────────
-COMBINED MONTHLY REVENUE GAP: {nums['total_month']}
-Over 12 months: {nums['total_year']}
+MONTHLY PATIENT CONTACT GAP: {nums['missed_calls_month']} calls/month unanswered
+Estimated booking impact: {nums['missed_impact_range']}/month
 ─────────────────────────────────
 
-GAP 1 — MISSED INBOUND CALLS: {nums['missed_month']}/month
+PATIENT GAP 1 — UNANSWERED CALLS: {nums['missed_calls_month']} calls/month
 
-Most owners assume their front desk gets to every call. At {nums['daily_calls']} daily inbound calls, roughly {nums['missed_day']} go unanswered every day. Those callers don't leave voicemails — they book elsewhere. At a 35% conversion rate, that's {nums['lost_bkgs_day']} lost appointments per day that never touch your {emr} system. First-visit revenue only — doesn't count follow-ups or lifetime value.
+At {nums['daily_calls']} daily inbound calls, roughly {nums['missed_day']} go unanswered every day — not a front desk problem, a volume problem. Some were calling to book. Some to reschedule. Some called after hours. All of them deserved a response within 60 seconds. Estimated booking impact if a 60-second callback were in place: {nums['missed_impact_range']}/month.
 
-GAP 2 — NO-SHOW RECOVERY: {nums['noshows_month']}/month
+PATIENT GAP 2 — NO-SHOW RECOVERY: {nums['noshows_day']} empty slots/day
 
-A no-show isn't just a missed appointment — it's a slot you already paid staff to cover. Across {nums['appts_day']} daily appointments, {nums['noshows_day']} chairs go dark every day. 30% are recoverable the same day if you reach the patient within 15 minutes. Without automation, that window closes every time. {nums['recover_day']} appointments per day — written off permanently.
+A no-show is a patient who needed care and didn't come in. Across your appointment volume, roughly {nums['noshows_day']} slots go empty daily. About 30% of those patients will rebook if you reach them within 15 minutes of their missed slot — potential impact: {nums['noshows_impact']}/month.
 
-GAP 3 — DORMANT PATIENT REACTIVATION: {nums['reactiv_month']}/month
+PATIENT GAP 3 — PATIENTS WHO DRIFTED AWAY: {nums['reactivatable']} per quarter
 
-{nums['dormant']} patients in your database haven't returned in 90+ days. They didn't leave unhappy — life got busy, nobody followed up. A PHIPA-compliant quarterly outreach campaign converts ~15% back to active — {nums['reactivatable']} patients per campaign. Acquisition cost: zero. This is the highest-margin gap of the three.
+{nums['dormant']} patients in your database haven't returned in 90+ days. They didn't leave unhappy — life got busy, nobody followed up. A PHIPA-compliant quarterly outreach reaches those patients and typically brings {nums['reactivatable']} back per campaign. No acquisition cost — they already trust your clinic.
 
 YOUR EMR ({emr}): {emr_note}
 
 ─────────────────────────────────
 
-{owner}, every clinic on this list leaks revenue across these same three gaps. The ones closing it aren't working harder — they've automated the parts where patients fall through. This audit shows you exactly where that's happening at {clinic}.
+{owner}, every clinic at your call volume has patients who tried to reach them and didn't get through. The ones who've fixed it didn't hire more staff — they made sure a response happens regardless of when the call comes in.
 
-If you want to walk through which gap is costing you the most right now, I set aside 20 minutes for that conversation. No pitch. No deck. Just your numbers and a clear picture of what fixing them would actually look like.
+If you want to look at your actual call patterns together, I set aside 20 minutes for that conversation. No pitch. No deck. Just an honest conversation about whether this is the right fit for {clinic}.
 
 Schedule your free 20-minute call:
 {BOOKING_LINK}
@@ -364,8 +363,8 @@ Phone: {phone}
 Locations: {locs} · EMR: {emr}
 Notes: {notes}
 
-Monthly revenue at risk: {nums['total_month']}
-Annual projection: {nums['total_year']}
+Monthly unanswered calls: {nums['missed_calls_month']}
+Estimated booking impact: {nums['missed_impact_range']}/month
 
 Audit sent automatically to {email}. Follow up in 3 days.
 """
@@ -388,7 +387,7 @@ FORM_HTML = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SOURCE X — Free Clinic Revenue Leak Audit</title>
+  <title>SOURCE X — Free Clinic Call Audit</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
@@ -434,20 +433,20 @@ FORM_HTML = """<!DOCTYPE html>
 
 <div class="hero">
   <div style="margin-bottom:24px;"><img src="/static/sourcex-logo.png" alt="SOURCE X" width="64" height="64" style="display:inline-block;"></div>
-  <div class="hero-badge">Complimentary · No Commitment · Delivered in 24–48 Hours</div>
-  <h1 class="hero-h1">How Much Is Your Clinic<br><em>Actually</em> Losing?</h1>
-  <p class="hero-sub">Submit your clinic info. Within 24 to 48 hours you get a personalized revenue leak estimate — specific to your location count, EMR, and call volume. No pitch. Just numbers.</p>
+  <div class="hero-badge">Complimentary · No Commitment · Delivered Within 24 Hours</div>
+  <h1 class="hero-h1">How Many Patients<br><em>Can't Get Through</em> to Your Clinic?</h1>
+  <p class="hero-sub">Submit your clinic info. Within 24 hours you receive a personalized report showing how many patient calls go unanswered at your clinic — and what happens when every one of them gets a response. No pitch. Just your numbers.</p>
   <div class="hero-stats">
-    <div class="hero-stat"><div class="hs-num">$8K–$25K</div><div class="hs-lbl">Monthly leak estimate</div></div>
-    <div class="hero-stat"><div class="hs-num">24–48 hrs</div><div class="hs-lbl">Delivered to your inbox</div></div>
+    <div class="hero-stat"><div class="hs-num">~10%</div><div class="hs-lbl">Of clinic calls go unanswered</div></div>
+    <div class="hero-stat"><div class="hs-num">Within 24 hrs</div><div class="hs-lbl">Delivered to your inbox</div></div>
     <div class="hero-stat"><div class="hs-num">0</div><div class="hs-lbl">Obligation or pitch</div></div>
   </div>
 </div>
 
 <div class="form-wrap">
   <div class="form-card">
-    <div class="form-title">Request Your Free Revenue Leak Audit</div>
-    <p class="form-sub">Two minutes. Five questions. You'll receive a personalized 4-section report showing exactly where your clinic is losing revenue and what it would take to stop it.</p>
+    <div class="form-title">Request Your Free Clinic Call Audit</div>
+    <p class="form-sub">Two minutes. Five questions. You'll receive a personalized report showing how many patients aren't reaching your team each month — and what a 60-second response to every missed call would change.</p>
 
     <form id="auditForm">
       <div class="form-grid">
@@ -459,6 +458,7 @@ FORM_HTML = """<!DOCTYPE html>
         <div><label for="locations">Locations <span class="req">*</span></label>
           <select id="locations" required>
             <option value="">Select...</option>
+            <option value="1">1 location</option>
             <option value="2">2 locations</option>
             <option value="3">3 locations</option>
             <option value="4">4 locations</option>
@@ -493,14 +493,14 @@ FORM_HTML = """<!DOCTYPE html>
 
       <p class="privacy">Your clinic information is used only to build your personalized audit. Never shared or sold. PHIPA-aware handling throughout.</p>
 
-      <button type="submit" class="submit-btn" id="submitBtn">Get My Free Revenue Leak Audit →</button>
+      <button type="submit" class="submit-btn" id="submitBtn">Get My Free Clinic Call Audit →</button>
       <p class="submit-note">Sent to your inbox within 24 to 48 hours · No pitch · No obligation</p>
       <p class="error-msg" id="errorMsg">Something went wrong. Please try again or email info@getsourcex.com directly.</p>
     </form>
 
     <div class="success" id="successState">
       <div class="success-title">Done — your audit is on its way.</div>
-      <div class="success-text">You'll receive your personalized Revenue Leak Audit at the email you provided within 24 to 48 hours. No pitch inside it — just your numbers. Check your inbox (and spam folder just in case).</div>
+      <div class="success-text">You'll receive your personalized Clinic Call Audit at the email you provided within 24 hours. No pitch inside it — just an honest look at your call patterns. Check your inbox (and spam folder just in case).</div>
     </div>
   </div>
 </div>
@@ -544,7 +544,7 @@ FORM_HTML = """<!DOCTYPE html>
     } catch(ex) {
       err.style.display = 'block';
       btn.disabled = false;
-      btn.textContent = 'Get My Free Revenue Leak Audit →';
+      btn.textContent = 'Get My Free Clinic Call Audit →';
     }
   });
 </script>
