@@ -64,7 +64,11 @@ app.get('/api/health', (req, res) => {
 
 // ── Static (production) ───────────────────────────────────────────────────────
 if (isProd) {
-  const dist = path.join(__dirname, 'public')
+  // Try backend/public first (local dev builds), fall back to frontend/dist (Railway nixpacks builds)
+  const distPublic   = path.join(__dirname, 'public')
+  const distFrontend = path.join(__dirname, '..', 'frontend', 'dist')
+  const fs = require('fs')
+  const dist = fs.existsSync(path.join(distPublic, 'index.html')) ? distPublic : distFrontend
   app.use(express.static(dist))
   app.get('*', (_, res) => res.sendFile(path.join(dist, 'index.html')))
 }
