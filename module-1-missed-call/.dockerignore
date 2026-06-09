@@ -1,0 +1,9 @@
+node_modules
+backend/node_modules
+frontend/node_modules
+frontend/dist
+backend/public
+.env
+backend/data/audit.log
+backend/data/calls.json
+.DS_Store
