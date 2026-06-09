@@ -1,93 +1,54 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import type { ModuleId } from './types'
 import Sidebar from './components/layout/Sidebar'
-import TopBar from './components/layout/TopBar'
-import LiveStatusPanel from './components/panels/LiveStatusPanel'
-import ActivityFeedPanel from './components/panels/ActivityFeedPanel'
-import PatientRecordPanel from './components/panels/PatientRecordPanel'
-import CampaignPanel from './components/panels/CampaignPanel'
-import FaxPanel from './components/panels/FaxPanel'
-import WaitlistPanel from './components/panels/WaitlistPanel'
-import ReviewPanel from './components/panels/ReviewPanel'
-import InsurancePanel from './components/panels/InsurancePanel'
-import ReportingPanel from './components/panels/ReportingPanel'
+import DashboardHeader from './components/dashboard/DashboardHeader'
+import StatCards from './components/dashboard/StatCards'
+import TrendChart from './components/dashboard/TrendChart'
+import OutcomesPanel from './components/dashboard/OutcomesPanel'
+import LivePanel from './components/dashboard/LivePanel'
 import CallLogTable from './components/shared/CallLogTable'
 import { useSimulation } from './hooks/useSimulation'
 import { useCallLog } from './hooks/useCallLog'
-
-const MODULE_NAMES: Record<ModuleId, string> = {
-  1: 'Missed Call Recovery',
-  2: 'No-Show Recovery',
-  3: 'Patient Reactivation',
-  4: 'Fax Automation',
-  5: 'Waitlist Management',
-  6: 'Review Generation',
-  7: 'Insurance Follow-up',
-}
+import { useReports } from './hooks/useReports'
 
 export default function App() {
-  const [currentModule, setCurrentModule] = useState<ModuleId>(1)
-  const [showReports, setShowReports]     = useState(false)
+  const [currentModule] = useState<ModuleId>(1)
   const sim = useSimulation()
   const { calls, loading, newestId } = useCallLog(sim.currentState)
-
-  const handleModuleChange = async (moduleId: ModuleId) => {
-    if (moduleId === currentModule) return
-    await sim.resetSimulation()
-    setCurrentModule(moduleId)
-  }
-
-  const renderRightPanel = () => {
-    switch (currentModule) {
-      case 3: return <CampaignPanel patients={sim.campaignPatients} revenue={sim.campaignRevenue} state={sim.currentState} />
-      case 4: return <FaxPanel state={sim.currentState} />
-      case 5: return <WaitlistPanel state={sim.currentState} />
-      case 6: return <ReviewPanel state={sim.currentState} />
-      case 7: return <InsurancePanel state={sim.currentState} />
-      default: return (
-        <PatientRecordPanel
-          patient={sim.patient}
-          transcript={sim.transcript}
-          state={sim.currentState}
-          moduleId={currentModule as 1 | 2}
-        />
-      )
-    }
-  }
+  const { data: report, period, setPeriod } = useReports()
 
   return (
     <div className="flex h-screen bg-sx-dark text-white overflow-hidden">
-      <Sidebar currentModule={currentModule} onModuleChange={handleModuleChange} />
-      <div className="flex flex-col flex-1 overflow-hidden">
-        <TopBar
-          moduleName={MODULE_NAMES[currentModule]}
-          showReports={showReports}
-          onToggleReports={() => setShowReports(v => !v)}
-        />
-        <main className="flex-1 overflow-hidden p-4 flex flex-col gap-4 min-h-0">
-          {showReports ? (
-            <ReportingPanel onClose={() => setShowReports(false)} />
-          ) : (
-            <>
-              <div className="grid grid-cols-3 gap-4 flex-1 min-h-0">
-                <LiveStatusPanel
-                  state={sim.currentState}
-                  label={sim.label}
-                  isRunning={sim.isRunning}
-                  speed={sim.speed}
-                  startedAt={sim.startedAt}
-                  moduleId={currentModule}
-                  onSpeedChange={sim.setSpeed}
-                  onSimulate={() => sim.triggerSimulation(sim.speed, currentModule)}
-                />
-                <ActivityFeedPanel activity={sim.activity} />
-                {renderRightPanel()}
-              </div>
-              <div className="h-52 flex-shrink-0">
-                <CallLogTable calls={calls} loading={loading} newestId={newestId} />
-              </div>
-            </>
-          )}
+      <Sidebar currentModule={currentModule} onModuleChange={() => {}} />
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+        <DashboardHeader period={period} onPeriodChange={setPeriod} />
+        <main className="flex-1 overflow-y-auto custom-scrollbar bg-sx-dark px-6 py-5 space-y-5">
+
+          {/* Stat Cards */}
+          <StatCards report={report} calls={calls} />
+
+          {/* Mid Row */}
+          <div className="grid grid-cols-12 gap-5">
+            <div className="col-span-8">
+              <TrendChart trend={report?.trend ?? []} period={period} />
+            </div>
+            <div className="col-span-4 flex flex-col gap-5">
+              <OutcomesPanel byOutcome={report?.byOutcome ?? {}} />
+              <LivePanel
+                state={sim.currentState}
+                label={sim.label}
+                isRunning={sim.isRunning}
+                speed={sim.speed}
+                startedAt={sim.startedAt}
+                onSpeedChange={sim.setSpeed}
+                onSimulate={() => sim.triggerSimulation(sim.speed, 1)}
+              />
+            </div>
+          </div>
+
+          {/* Call Log */}
+          <CallLogTable calls={calls} loading={loading} newestId={newestId} />
+
         </main>
       </div>
     </div>
