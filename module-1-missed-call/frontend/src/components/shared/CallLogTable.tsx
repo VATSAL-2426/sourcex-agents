@@ -47,11 +47,11 @@ export default function CallLogTable({ calls, loading, newestId }: {
   const simCount  = calls.filter(c => c.mode !== 'live').length
 
   return (
-    <div className="bg-sx-panel border border-sx-border rounded-xl overflow-hidden">
+    <div className="bg-sx-panel border border-sx-border rounded-xl overflow-hidden shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-3 border-b border-sx-border">
         <div className="flex items-center gap-3">
-          <h3 className="text-sm font-semibold text-white">Call Log</h3>
+          <h3 className="text-sm font-semibold text-sx-text">Call Log</h3>
           <div className="flex items-center gap-2">
             {calls.length > 0 && (
               <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-sx-blue/10 text-sx-blue border border-sx-blue/20">
@@ -103,22 +103,22 @@ export default function CallLogTable({ calls, loading, newestId }: {
               {calls.map(call => (
                 <tr
                   key={call.id}
-                  className={`border-b border-sx-border/40 transition-colors ${
+                  className={`border-b border-sx-border transition-colors ${
                     call.id === newestId
                       ? 'bg-sx-blue/5 border-l-2 border-l-sx-blue'
-                      : 'hover:bg-white/[0.015]'
+                      : 'hover:bg-sx-dark'
                   }`}
                 >
                   <td className="px-4 py-3 whitespace-nowrap">
-                    <div className="font-mono text-white text-[11px]">{fmt(call.timestamp, 'time')}</div>
+                    <div className="font-mono text-sx-text text-[11px]">{fmt(call.timestamp, 'time')}</div>
                     <div className="text-sx-muted text-[10px]">{fmt(call.timestamp, 'date')}</div>
                   </td>
-                  <td className="px-4 py-3 text-white font-medium whitespace-nowrap">{call.patient_name}</td>
+                  <td className="px-4 py-3 text-sx-text font-medium whitespace-nowrap">{call.patient_name}</td>
                   <td className="px-4 py-3 text-sx-muted font-mono whitespace-nowrap text-[11px]">
                     {(call.patient_phone || '').replace(/\d(?=\d{4})/g, '•')}
                   </td>
                   <td className="px-4 py-3 text-sx-muted max-w-[160px] truncate">{call.reason}</td>
-                  <td className="px-4 py-3 text-white whitespace-nowrap max-w-[140px] truncate">{call.appointment || '—'}</td>
+                  <td className="px-4 py-3 text-sx-text whitespace-nowrap max-w-[140px] truncate">{call.appointment || '—'}</td>
                   <td className="px-4 py-3 whitespace-nowrap"><Badge variant={call.outcome} /></td>
                   <td className="px-4 py-3 whitespace-nowrap"><Badge variant={call.mode} label={call.mode === 'live' ? 'Live' : 'Sim'} /></td>
                 </tr>

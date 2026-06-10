@@ -18,7 +18,7 @@ export default function App() {
   const { data: report, period, setPeriod } = useReports()
 
   return (
-    <div className="flex h-screen bg-sx-dark text-white overflow-hidden">
+    <div className="flex h-screen bg-sx-dark text-sx-text overflow-hidden">
       <Sidebar currentModule={currentModule} onModuleChange={() => {}} />
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <DashboardHeader period={period} onPeriodChange={setPeriod} />

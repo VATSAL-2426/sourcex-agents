@@ -16,13 +16,13 @@ export default function Sidebar({ currentModule, onModuleChange }: {
 }) {
   return (
     <div className="w-60 flex-shrink-0 bg-sx-surface border-r border-sx-border flex flex-col">
-      <div className="h-14 flex items-center px-5 border-b border-sx-border flex-shrink-0">
-        <img src="/sourcex-logo.png" alt="SOURCE X" className="h-6 object-contain"
+      <div className="h-16 flex items-center px-5 border-b border-sx-border flex-shrink-0">
+        <img src="/sourcex-logo.png" alt="SOURCE X" className="h-9 object-contain"
           onError={(e) => {
             const el = e.currentTarget as HTMLImageElement
             el.style.display = 'none'
             const s = document.createElement('span')
-            s.className = 'text-white font-bold text-base tracking-tight'
+            s.className = 'text-sx-text font-bold text-lg tracking-tight'
             s.textContent = 'SOURCE X'
             el.parentElement!.appendChild(s)
           }} />
@@ -46,7 +46,7 @@ export default function Sidebar({ currentModule, onModuleChange }: {
                 }
                 ${isSelected && mod.live
                   ? 'bg-sx-blue/10 border-sx-blue/20'
-                  : 'border-transparent hover:bg-white/[0.03]'
+                  : 'border-transparent hover:bg-sx-dark'
                 }`}
             >
               {isSelected && mod.live && (
@@ -57,7 +57,7 @@ export default function Sidebar({ currentModule, onModuleChange }: {
                   <span className="text-[10px] font-semibold tracking-widest text-sx-muted">
                     {String(mod.id).padStart(2, '0')}
                   </span>
-                  <span className={`text-xs font-medium truncate ${isSelected && mod.live ? 'text-white' : 'text-sx-muted'}`}>
+                  <span className={`text-xs font-medium truncate ${isSelected && mod.live ? 'text-sx-text' : 'text-sx-muted'}`}>
                     {mod.name}
                   </span>
                   {!mod.live && (
@@ -78,7 +78,7 @@ export default function Sidebar({ currentModule, onModuleChange }: {
           <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
           <span className="text-[10px] text-sx-muted">PHIPA Compliant</span>
         </div>
-        <p className="text-[9px] text-sx-border font-mono">v1.0 — Live</p>
+        <p className="text-[9px] text-sx-muted font-mono">v1.0 — Live</p>
       </div>
     </div>
   )

@@ -10,10 +10,10 @@ const STATE_LABEL: Partial<Record<SimState, string>> = {
 }
 
 const STATE_COLOR: Partial<Record<SimState, string>> = {
-  idle: 'text-sx-muted', missed_call: 'text-amber-400',
+  idle: 'text-sx-muted', missed_call: 'text-amber-600',
   initiating_callback: 'text-sx-blue', dialing: 'text-sx-blue',
-  connected: 'text-green-400', identifying_reason: 'text-green-400',
-  booking_in_progress: 'text-sx-blue', confirmed: 'text-green-400', complete: 'text-green-400',
+  connected: 'text-emerald-600', identifying_reason: 'text-emerald-600',
+  booking_in_progress: 'text-sx-blue', confirmed: 'text-emerald-600', complete: 'text-emerald-600',
 }
 
 function useElapsed(startedAt: number | null) {
@@ -36,12 +36,12 @@ export default function LivePanel({ state, label, isRunning, speed, startedAt, o
   const stateColor = STATE_COLOR[state] ?? 'text-sx-muted'
 
   return (
-    <div className="bg-sx-panel border border-sx-border rounded-xl overflow-hidden">
+    <div className="bg-sx-panel border border-sx-border rounded-xl overflow-hidden shadow-sm">
       {/* Header */}
       <div className="px-4 py-3 border-b border-sx-border flex items-center justify-between">
         <div>
           <p className="text-[9px] font-semibold tracking-widest text-sx-muted uppercase">Module 01</p>
-          <h3 className="text-sm font-semibold text-white mt-0.5">Live System</h3>
+          <h3 className="text-sm font-semibold text-sx-text mt-0.5">Live System</h3>
         </div>
         {startedAt && (
           <span className="font-mono text-[11px] text-sx-muted">
@@ -108,7 +108,7 @@ export default function LivePanel({ state, label, isRunning, speed, startedAt, o
         </button>
 
         <p className="text-[9px] text-sx-muted text-center">
-          Or call <span className="text-white font-mono">+1 647 361 1354</span> to trigger live
+          Or call <span className="text-sx-text font-mono">+1 647 361 1354</span> to trigger live
         </p>
       </div>
     </div>

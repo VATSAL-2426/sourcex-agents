@@ -35,21 +35,18 @@ const ICONS: Record<string, () => JSX.Element> = {
   target: TargetIcon, clock: ClockIcon, message: MessageIcon,
 }
 
-function StatCard({ label, value, sub, icon, gradient, iconBg, trend }: Card) {
+function StatCard({ label, value, sub, icon, iconBg, trend }: Card) {
   const Icon = ICONS[icon]
   return (
-    <div className={`relative overflow-hidden rounded-xl p-5 border border-white/5 ${gradient}`}>
-      {/* Background glow */}
-      <div className="absolute inset-0 opacity-30 pointer-events-none" style={{ background: 'radial-gradient(ellipse at top right, rgba(255,255,255,0.06), transparent 60%)' }} />
-
-      <div className="relative flex items-start justify-between">
+    <div className="bg-white rounded-xl p-5 border border-sx-border shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-white/50 mb-2">{label}</p>
-          <p className="text-3xl font-bold text-white tracking-tight leading-none">{value}</p>
-          <p className="text-[11px] text-white/50 mt-1.5">{sub}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-sx-muted mb-2">{label}</p>
+          <p className="text-3xl font-bold text-sx-text tracking-tight leading-none">{value}</p>
+          <p className="text-[11px] text-sx-muted mt-1.5">{sub}</p>
           {trend !== undefined && (
             <div className={`inline-flex items-center gap-1 mt-2 text-[10px] font-semibold px-1.5 py-0.5 rounded ${
-              trend.positive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+              trend.positive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
             }`}>
               <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor">
                 {trend.positive
@@ -61,7 +58,7 @@ function StatCard({ label, value, sub, icon, gradient, iconBg, trend }: Card) {
             </div>
           )}
         </div>
-        <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${iconBg}`}>
+        <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBg}`}>
           <Icon />
         </div>
       </div>
@@ -80,57 +77,57 @@ export default function StatCards({ report, calls }: {
 
   const cards: Card[] = [
     {
-      label:    'Calls Recovered',
-      value:    String(s?.totalHandled ?? 0),
-      sub:      `Last ${report?.period.days ?? 30} days`,
-      icon:     'phone',
-      gradient: 'bg-gradient-to-br from-violet-950 via-violet-900/60 to-sx-panel',
-      iconBg:   'bg-violet-500/20 text-violet-300',
-      trend:    { value: 12, positive: true },
+      label:  'Calls Recovered',
+      value:  String(s?.totalHandled ?? 0),
+      sub:    `Last ${report?.period.days ?? 30} days`,
+      icon:   'phone',
+      gradient: '',
+      iconBg: 'bg-violet-100 text-violet-600',
+      trend:  { value: 12, positive: true },
     },
     {
-      label:    'Bookings Created',
-      value:    String(s?.booked ?? 0),
-      sub:      'Confirmed appointments',
-      icon:     'calendar',
-      gradient: 'bg-gradient-to-br from-teal-950 via-teal-900/60 to-sx-panel',
-      iconBg:   'bg-teal-500/20 text-teal-300',
-      trend:    { value: 8, positive: true },
+      label:  'Bookings Created',
+      value:  String(s?.booked ?? 0),
+      sub:    'Confirmed appointments',
+      icon:   'calendar',
+      gradient: '',
+      iconBg: 'bg-teal-100 text-teal-600',
+      trend:  { value: 8, positive: true },
     },
     {
-      label:    'Revenue Recovered',
-      value:    fmtRev(s?.estimatedRevenue ?? 0),
-      sub:      `@ $${report?.avgFee ?? 350}/appt est.`,
-      icon:     'dollar',
-      gradient: 'bg-gradient-to-br from-sky-950 via-sky-900/60 to-sx-panel',
-      iconBg:   'bg-sky-500/20 text-sky-300',
-      trend:    { value: 18, positive: true },
+      label:  'Revenue Recovered',
+      value:  fmtRev(s?.estimatedRevenue ?? 0),
+      sub:    `@ $${report?.avgFee ?? 350}/appt est.`,
+      icon:   'dollar',
+      gradient: '',
+      iconBg: 'bg-sky-100 text-sky-600',
+      trend:  { value: 18, positive: true },
     },
     {
-      label:    'Success Rate',
-      value:    `${s?.successRate ?? 0}%`,
-      sub:      'Calls converted to bookings',
-      icon:     'target',
-      gradient: 'bg-gradient-to-br from-emerald-950 via-emerald-900/60 to-sx-panel',
-      iconBg:   'bg-emerald-500/20 text-emerald-300',
-      trend:    { value: 3, positive: true },
+      label:  'Success Rate',
+      value:  `${s?.successRate ?? 0}%`,
+      sub:    'Calls converted to bookings',
+      icon:   'target',
+      gradient: '',
+      iconBg: 'bg-emerald-100 text-emerald-600',
+      trend:  { value: 3, positive: true },
     },
     {
-      label:    'Avg Callback Time',
-      value:    fmtDur(s?.avgDurationSeconds ?? 0),
-      sub:      'Mean call duration',
-      icon:     'clock',
-      gradient: 'bg-gradient-to-br from-amber-950 via-amber-900/60 to-sx-panel',
-      iconBg:   'bg-amber-500/20 text-amber-300',
+      label:  'Avg Callback Time',
+      value:  fmtDur(s?.avgDurationSeconds ?? 0),
+      sub:    'Mean call duration',
+      icon:   'clock',
+      gradient: '',
+      iconBg: 'bg-amber-100 text-amber-600',
     },
     {
-      label:    'Live Bookings',
-      value:    String(liveBookings),
-      sub:      'Real calls, not simulations',
-      icon:     'message',
-      gradient: 'bg-gradient-to-br from-rose-950 via-rose-900/60 to-sx-panel',
-      iconBg:   'bg-rose-500/20 text-rose-300',
-      trend:    liveBookings > 0 ? { value: 100, positive: true } : undefined,
+      label:  'Live Bookings',
+      value:  String(liveBookings),
+      sub:    'Real calls, not simulations',
+      icon:   'message',
+      gradient: '',
+      iconBg: 'bg-rose-100 text-rose-600',
+      trend:  liveBookings > 0 ? { value: 100, positive: true } : undefined,
     },
   ]
 

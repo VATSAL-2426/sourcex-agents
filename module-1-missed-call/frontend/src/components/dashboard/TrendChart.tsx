@@ -22,7 +22,7 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })
 }
 
-export default function TrendChart({ trend, period }: { trend: TrendPoint[]; period: number }) {
+export default function TrendChart({ trend }: { trend: TrendPoint[]; period?: number }) {
   const hasData = trend.length >= 2
 
   const maxVal = hasData
@@ -47,12 +47,12 @@ export default function TrendChart({ trend, period }: { trend: TrendPoint[]; per
   }, [])
 
   return (
-    <div className="bg-sx-panel border border-sx-border rounded-xl overflow-hidden">
+    <div className="bg-sx-panel border border-sx-border rounded-xl overflow-hidden shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-sx-border">
         <div>
           <p className="text-[9px] font-semibold tracking-widest text-sx-muted uppercase">Call Recovery Trend</p>
-          <h3 className="text-sm font-semibold text-white mt-0.5">Calls &amp; Bookings Over Time</h3>
+          <h3 className="text-sm font-semibold text-sx-text mt-0.5">Calls &amp; Bookings Over Time</h3>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
@@ -70,7 +70,7 @@ export default function TrendChart({ trend, period }: { trend: TrendPoint[]; per
       <div className="px-2 py-3">
         {!hasData ? (
           <div className="flex flex-col items-center justify-center gap-2 py-12">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-4"/>
             </svg>
             <p className="text-sx-muted text-xs">No trend data yet for this period</p>
@@ -96,7 +96,7 @@ export default function TrendChart({ trend, period }: { trend: TrendPoint[]; per
               return (
                 <g key={v}>
                   <line x1={PAD.left} y1={yPos} x2={PAD.left + IW} y2={yPos}
-                    stroke="#1E293B" strokeWidth="1" strokeDasharray={v === 0 ? '0' : '4 4'} />
+                    stroke="#E2E8F0" strokeWidth="1" strokeDasharray={v === 0 ? '0' : '4 4'} />
                   <text x={PAD.left - 6} y={yPos + 4} textAnchor="end" fill="#64748B" fontSize="9">{val}</text>
                 </g>
               )
@@ -115,8 +115,8 @@ export default function TrendChart({ trend, period }: { trend: TrendPoint[]; per
             {/* Dots */}
             {trend.map((p, i) => (
               <g key={i}>
-                <circle cx={px(i)} cy={py(p.handled)} r="3.5" fill="#0A0F1E" stroke="#0EA5E9" strokeWidth="2" />
-                <circle cx={px(i)} cy={py(p.booked)}  r="3.5" fill="#0A0F1E" stroke="#34D399" strokeWidth="2" />
+                <circle cx={px(i)} cy={py(p.handled)} r="3.5" fill="white" stroke="#0EA5E9" strokeWidth="2" />
+                <circle cx={px(i)} cy={py(p.booked)}  r="3.5" fill="white" stroke="#34D399" strokeWidth="2" />
               </g>
             ))}
 

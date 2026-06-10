@@ -6,11 +6,12 @@ export default {
       colors: {
         'sx-blue':    '#0EA5E9',
         'sx-navy':    '#1E3A5F',
-        'sx-dark':    '#0A0F1E',
-        'sx-surface': '#0F172A',
-        'sx-panel':   '#111827',
-        'sx-border':  '#1E293B',
+        'sx-dark':    '#F1F5F9',
+        'sx-surface': '#FFFFFF',
+        'sx-panel':   '#FFFFFF',
+        'sx-border':  '#E2E8F0',
         'sx-muted':   '#64748B',
+        'sx-text':    '#0F172A',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

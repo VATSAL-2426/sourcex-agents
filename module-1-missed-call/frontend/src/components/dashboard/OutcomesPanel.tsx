@@ -13,10 +13,10 @@ export default function OutcomesPanel({ byOutcome }: { byOutcome: Record<string,
   const total   = entries.reduce((s, [, v]) => s + v, 0)
 
   return (
-    <div className="bg-sx-panel border border-sx-border rounded-xl overflow-hidden flex-1">
+    <div className="bg-sx-panel border border-sx-border rounded-xl overflow-hidden flex-1 shadow-sm">
       <div className="px-4 py-3 border-b border-sx-border">
         <p className="text-[9px] font-semibold tracking-widest text-sx-muted uppercase">Call Outcomes</p>
-        <h3 className="text-sm font-semibold text-white mt-0.5">Outcome Breakdown</h3>
+        <h3 className="text-sm font-semibold text-sx-text mt-0.5">Outcome Breakdown</h3>
       </div>
 
       <div className="p-4">
@@ -40,7 +40,7 @@ export default function OutcomesPanel({ byOutcome }: { byOutcome: Record<string,
                       <span className="text-[11px] text-sx-muted">{cfg.label}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-bold text-white">{count}</span>
+                      <span className="text-[11px] font-bold text-sx-text">{count}</span>
                       <span className="text-[10px] text-sx-muted w-8 text-right">{pct}%</span>
                     </div>
                   </div>
@@ -59,7 +59,7 @@ export default function OutcomesPanel({ byOutcome }: { byOutcome: Record<string,
         {total > 0 && (
           <div className="mt-3 pt-3 border-t border-sx-border flex items-center justify-between">
             <span className="text-[10px] text-sx-muted">Total calls</span>
-            <span className="text-xs font-bold text-white">{total}</span>
+            <span className="text-xs font-bold text-sx-text">{total}</span>
           </div>
         )}
       </div>
