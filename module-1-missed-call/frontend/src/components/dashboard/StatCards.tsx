@@ -35,19 +35,21 @@ const ICONS: Record<string, () => JSX.Element> = {
   target: TargetIcon, clock: ClockIcon, message: MessageIcon,
 }
 
-function StatCard({ label, value, sub, icon, iconBg, trend }: Card) {
+function StatCard({ label, value, sub, icon, gradient, iconBg, trend }: Card) {
   const Icon = ICONS[icon]
   return (
-    <div className="bg-white rounded-xl p-5 border border-sx-border shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between">
+    <div className={`relative overflow-hidden rounded-2xl p-5 ${gradient} shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 cursor-default border border-white/10`}>
+      {/* Shine overlay for 3D depth */}
+      <div className="absolute inset-0 pointer-events-none"
+        style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 40%, transparent 70%)' }} />
+
+      <div className="relative flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-sx-muted mb-2">{label}</p>
-          <p className="text-3xl font-bold text-sx-text tracking-tight leading-none">{value}</p>
-          <p className="text-[11px] text-sx-muted mt-1.5">{sub}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-white/70 mb-2">{label}</p>
+          <p className="text-3xl font-bold text-white tracking-tight leading-none drop-shadow-sm">{value}</p>
+          <p className="text-[11px] text-white/70 mt-1.5">{sub}</p>
           {trend !== undefined && (
-            <div className={`inline-flex items-center gap-1 mt-2 text-[10px] font-semibold px-1.5 py-0.5 rounded ${
-              trend.positive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
-            }`}>
+            <div className="inline-flex items-center gap-1 mt-2 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-white/20 text-white backdrop-blur-sm">
               <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor">
                 {trend.positive
                   ? <path d="M18 15l-6-6-6 6"/>
@@ -58,7 +60,7 @@ function StatCard({ label, value, sub, icon, iconBg, trend }: Card) {
             </div>
           )}
         </div>
-        <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBg}`}>
+        <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 shadow-inner ${iconBg}`}>
           <Icon />
         </div>
       </div>
@@ -77,57 +79,57 @@ export default function StatCards({ report, calls }: {
 
   const cards: Card[] = [
     {
-      label:  'Calls Recovered',
-      value:  String(s?.totalHandled ?? 0),
-      sub:    `Last ${report?.period.days ?? 30} days`,
-      icon:   'phone',
-      gradient: '',
-      iconBg: 'bg-violet-100 text-violet-600',
-      trend:  { value: 12, positive: true },
+      label:    'Calls Recovered',
+      value:    String(s?.totalHandled ?? 0),
+      sub:      `Last ${report?.period.days ?? 30} days`,
+      icon:     'phone',
+      gradient: 'bg-gradient-to-br from-violet-500 via-violet-600 to-purple-700',
+      iconBg:   'bg-white/20 text-white',
+      trend:    { value: 12, positive: true },
     },
     {
-      label:  'Bookings Created',
-      value:  String(s?.booked ?? 0),
-      sub:    'Confirmed appointments',
-      icon:   'calendar',
-      gradient: '',
-      iconBg: 'bg-teal-100 text-teal-600',
-      trend:  { value: 8, positive: true },
+      label:    'Bookings Created',
+      value:    String(s?.booked ?? 0),
+      sub:      'Confirmed appointments',
+      icon:     'calendar',
+      gradient: 'bg-gradient-to-br from-teal-400 via-teal-500 to-emerald-600',
+      iconBg:   'bg-white/20 text-white',
+      trend:    { value: 8, positive: true },
     },
     {
-      label:  'Revenue Recovered',
-      value:  fmtRev(s?.estimatedRevenue ?? 0),
-      sub:    `@ $${report?.avgFee ?? 350}/appt est.`,
-      icon:   'dollar',
-      gradient: '',
-      iconBg: 'bg-sky-100 text-sky-600',
-      trend:  { value: 18, positive: true },
+      label:    'Revenue Recovered',
+      value:    fmtRev(s?.estimatedRevenue ?? 0),
+      sub:      `@ $${report?.avgFee ?? 350}/appt est.`,
+      icon:     'dollar',
+      gradient: 'bg-gradient-to-br from-sky-500 via-sky-600 to-blue-700',
+      iconBg:   'bg-white/20 text-white',
+      trend:    { value: 18, positive: true },
     },
     {
-      label:  'Success Rate',
-      value:  `${s?.successRate ?? 0}%`,
-      sub:    'Calls converted to bookings',
-      icon:   'target',
-      gradient: '',
-      iconBg: 'bg-emerald-100 text-emerald-600',
-      trend:  { value: 3, positive: true },
+      label:    'Success Rate',
+      value:    `${s?.successRate ?? 0}%`,
+      sub:      'Calls converted to bookings',
+      icon:     'target',
+      gradient: 'bg-gradient-to-br from-emerald-500 via-emerald-600 to-green-700',
+      iconBg:   'bg-white/20 text-white',
+      trend:    { value: 3, positive: true },
     },
     {
-      label:  'Avg Callback Time',
-      value:  fmtDur(s?.avgDurationSeconds ?? 0),
-      sub:    'Mean call duration',
-      icon:   'clock',
-      gradient: '',
-      iconBg: 'bg-amber-100 text-amber-600',
+      label:    'Avg Callback Time',
+      value:    fmtDur(s?.avgDurationSeconds ?? 0),
+      sub:      'Mean call duration',
+      icon:     'clock',
+      gradient: 'bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600',
+      iconBg:   'bg-white/20 text-white',
     },
     {
-      label:  'Live Bookings',
-      value:  String(liveBookings),
-      sub:    'Real calls, not simulations',
-      icon:   'message',
-      gradient: '',
-      iconBg: 'bg-rose-100 text-rose-600',
-      trend:  liveBookings > 0 ? { value: 100, positive: true } : undefined,
+      label:    'Live Bookings',
+      value:    String(liveBookings),
+      sub:      'Real calls, not simulations',
+      icon:     'message',
+      gradient: 'bg-gradient-to-br from-rose-500 via-rose-600 to-pink-700',
+      iconBg:   'bg-white/20 text-white',
+      trend:    liveBookings > 0 ? { value: 100, positive: true } : undefined,
     },
   ]
 
