@@ -17,7 +17,7 @@ export default function Sidebar({ currentModule, onModuleChange }: {
   return (
     <div className="w-60 flex-shrink-0 bg-sx-surface border-r border-sx-border flex flex-col">
       <div className="h-16 flex items-center px-5 border-b border-sx-border flex-shrink-0">
-        <img src="/sourcex-logo.png" alt="SOURCE X" className="h-9 object-contain invert" />
+        <img src="/sourcex-logo.png" alt="SOURCE X" className="h-12 object-contain invert" />
       </div>
 
       <div className="px-4 pt-4 pb-2 flex-shrink-0">
