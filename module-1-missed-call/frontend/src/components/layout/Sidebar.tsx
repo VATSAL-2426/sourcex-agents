@@ -17,15 +17,7 @@ export default function Sidebar({ currentModule, onModuleChange }: {
   return (
     <div className="w-60 flex-shrink-0 bg-sx-surface border-r border-sx-border flex flex-col">
       <div className="h-16 flex items-center px-5 border-b border-sx-border flex-shrink-0">
-        <img src="/sourcex-logo.png" alt="SOURCE X" className="h-9 object-contain brightness-0"
-          onError={(e) => {
-            const el = e.currentTarget as HTMLImageElement
-            el.style.display = 'none'
-            const s = document.createElement('span')
-            s.className = 'text-sx-text font-bold text-lg tracking-tight'
-            s.textContent = 'SOURCE X'
-            el.parentElement!.appendChild(s)
-          }} />
+        <span className="font-bold text-lg tracking-tight text-sx-text">SOURCE <span className="text-sx-blue">X</span></span>
       </div>
 
       <div className="px-4 pt-4 pb-2 flex-shrink-0">
