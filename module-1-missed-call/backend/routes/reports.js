@@ -59,7 +59,7 @@ router.get('/', async (req, res) => {
       trend[d] = { date: d, handled: 0, booked: 0 }
     }
     records.forEach(r => {
-      const d = r.timestamp?.slice(0, 10)
+      const d = r.timestamp ? new Date(r.timestamp).toISOString().slice(0, 10) : null
       if (d && trend[d]) {
         trend[d].handled++
         if (BOOKED_OUTCOMES.has(r.outcome)) trend[d].booked++
