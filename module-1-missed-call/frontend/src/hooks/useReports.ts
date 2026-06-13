@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import type { SimState } from '../types'
 
 export interface ReportSummary {
   totalHandled: number
@@ -27,7 +28,7 @@ export interface ReportData {
   trend: TrendPoint[]
 }
 
-export function useReports() {
+export function useReports(currentSimState?: SimState) {
   const [data, setData]       = useState<ReportData | null>(null)
   const [loading, setLoading] = useState(false)
   const [period, setPeriod]   = useState(30)
@@ -40,7 +41,21 @@ export function useReports() {
     } catch (_) {} finally { setLoading(false) }
   }, [period])
 
+  // Initial fetch + refetch when period changes
   useEffect(() => { refetch() }, [refetch])
+
+  // Auto-poll every 30 seconds so live calls update the dashboard
+  useEffect(() => {
+    const id = setInterval(refetch, 30000)
+    return () => clearInterval(id)
+  }, [refetch])
+
+  // Refresh 1.5 s after a simulation completes (gives the DB time to write)
+  useEffect(() => {
+    if (currentSimState !== 'complete') return
+    const t = setTimeout(refetch, 1500)
+    return () => clearTimeout(t)
+  }, [currentSimState, refetch])
 
   return { data, loading, period, setPeriod, refetch }
 }

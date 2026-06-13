@@ -34,6 +34,7 @@ app.use('/api/simulate', writeLimiter)
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.use('/api/simulate', require('./routes/simulate'))
+app.use('/api/seed',     require('./routes/seed'))
 app.use('/api/calls',    require('./routes/calls'))
 app.use('/api/reports',  require('./routes/reports'))
 app.use('/api/retell',   require('./routes/webhook'))   // kept for simulation compat

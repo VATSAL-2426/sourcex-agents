@@ -8,9 +8,11 @@ const PERIODS = [
   { label: 'Last 90 days', value: 90 },
 ]
 
-export default function DashboardHeader({ period, onPeriodChange }: {
+export default function DashboardHeader({ period, onPeriodChange, hasData, onSeedData }: {
   period: number
   onPeriodChange: (v: number) => void
+  hasData: boolean
+  onSeedData: () => void
 }) {
   const [config, setConfig] = useState<Config | null>(null)
   const [now, setNow]       = useState(new Date())
@@ -49,6 +51,19 @@ export default function DashboardHeader({ period, onPeriodChange }: {
 
         {/* Right — period selector + clock */}
         <div className="flex items-center gap-3">
+          {/* Load demo data — shown only when DB is empty */}
+          {!hasData && (
+            <button
+              onClick={onSeedData}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sx-blue text-white text-[11px] font-semibold hover:bg-sky-600 transition-all shadow-sm"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+                <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+              </svg>
+              Load Demo Data
+            </button>
+          )}
           {/* Period selector */}
           <div className="flex items-center bg-sx-dark border border-sx-border rounded-lg p-0.5 gap-0.5">
             {PERIODS.map(p => (

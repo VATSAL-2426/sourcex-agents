@@ -14,14 +14,26 @@ import { useReports } from './hooks/useReports'
 export default function App() {
   const [currentModule] = useState<ModuleId>(1)
   const sim = useSimulation()
-  const { calls, loading, newestId } = useCallLog(sim.currentState)
-  const { data: report, period, setPeriod } = useReports()
+  const { calls, loading, newestId, refetch: refetchCalls } = useCallLog(sim.currentState)
+  const { data: report, period, setPeriod, refetch: refetchReports } = useReports(sim.currentState)
+
+  const seedDemoData = async () => {
+    await fetch('/api/seed', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ days: 30 }),
+    })
+    await refetchReports()
+    await refetchCalls()
+  }
+
+  const hasData = (report?.summary?.totalHandled ?? 0) > 0
 
   return (
     <div className="flex h-screen bg-sx-dark text-sx-text overflow-hidden">
       <Sidebar currentModule={currentModule} onModuleChange={() => {}} />
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        <DashboardHeader period={period} onPeriodChange={setPeriod} />
+        <DashboardHeader period={period} onPeriodChange={setPeriod} hasData={hasData} onSeedData={seedDemoData} />
         <main className="flex-1 overflow-y-auto custom-scrollbar bg-sx-dark px-6 py-5 space-y-5">
 
           {/* Stat Cards */}
